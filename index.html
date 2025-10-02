@@ -1,1 +1,688 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Agence Immobilière - GTA RP</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: var(--light);
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--light);
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .summary-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .summary-item.total {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary);
+            border-bottom: none;
+        }
+        
+        .calculator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .calculator-result {
+            background-color: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .commission-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .commission-option {
+            padding: 15px;
+            text-align: center;
+            background-color: var(--light);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .commission-option:hover {
+            background-color: #d6dbdf;
+        }
+        
+        .commission-option.selected {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .calculator {
+                grid-template-columns: 1fr;
+            }
+            
+            .commission-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Agence Immobilière - Tableau de Gestion</h1>
+            <p>Gérez vos employés, calculer les commissions et les bénéfices</p>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="employees">Gestion Employés</div>
+            <div class="tab" data-tab="commission">Calculateur de Commission</div>
+            <div class="tab" data-tab="expenses">Dépenses & Impôts</div>
+            <div class="tab" data-tab="summary">Résumé Hebdomadaire</div>
+        </div>
+        
+        <!-- Onglet Gestion Employés -->
+        <div id="employees" class="tab-content active">
+            <h2>Gestion des Employés</h2>
+            <div class="form-group">
+                <label for="employeeName">Nom de l'employé</label>
+                <input type="text" id="employeeName" placeholder="Entrez le nom de l'employé">
+            </div>
+            
+            <div class="form-group">
+                <label for="weeklyRevenue">Chiffre d'affaires hebdomadaire ($)</label>
+                <input type="number" id="weeklyRevenue" placeholder="Entrez le CA de la semaine">
+            </div>
+            
+            <button id="addEmployee">Ajouter Employé</button>
+            
+            <table id="employeesTable">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>CA Hebdomadaire</th>
+                        <th>Commission (15%)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Les lignes seront ajoutées dynamiquement -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Onglet Calculateur de Commission -->
+        <div id="commission" class="tab-content">
+            <h2>Calculateur de Commission</h2>
+            <div class="calculator">
+                <div>
+                    <div class="form-group">
+                        <label for="propertyValue">Valeur du bien ($)</label>
+                        <input type="number" id="propertyValue" placeholder="Entrez la valeur du bien">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Sélectionnez le pourcentage de commission</label>
+                        <div class="commission-options">
+                            <div class="commission-option" data-percent="8">8%</div>
+                            <div class="commission-option" data-percent="15">15%</div>
+                            <div class="commission-option" data-percent="18">18%</div>
+                            <div class="commission-option" data-percent="20">20%</div>
+                            <div class="commission-option" data-percent="25">25%</div>
+                            <div class="commission-option" data-percent="custom">Personnalisé</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="customPercentContainer" style="display: none;">
+                        <label for="customPercent">Pourcentage personnalisé</label>
+                        <input type="number" id="customPercent" placeholder="Entrez le pourcentage">
+                    </div>
+                    
+                    <button id="calculateCommission">Calculer la Commission</button>
+                </div>
+                
+                <div class="calculator-result" id="commissionResult">
+                    Commission: $0
+                </div>
+            </div>
+        </div>
+        
+        <!-- Onglet Dépenses & Impôts -->
+        <div id="expenses" class="tab-content">
+            <h2>Dépenses & Impôts</h2>
+            
+            <div class="form-group">
+                <label for="taxRate">Taux d'imposition (%)</label>
+                <input type="number" id="taxRate" value="10" placeholder="Entrez le taux d'imposition">
+            </div>
+            
+            <div class="form-group">
+                <label for="weeklyExpenses">Dépenses hebdomadaires ($)</label>
+                <input type="number" id="weeklyExpenses" placeholder="Entrez le montant des dépenses">
+            </div>
+            
+            <div class="form-group">
+                <label for="agencyCosts">Coûts de l'agence ($)</label>
+                <input type="number" id="agencyCosts" placeholder="Entrez les coûts de l'agence">
+            </div>
+            
+            <button id="updateExpenses">Mettre à jour</button>
+            
+            <div class="summary-box">
+                <h3>Résumé des Dépenses</h3>
+                <div class="summary-item">
+                    <span>CA Total Brut:</span>
+                    <span id="grossRevenue">$0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Impôts:</span>
+                    <span id="taxAmount">$0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Dépenses:</span>
+                    <span id="totalExpenses">$0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Salaires:</span>
+                    <span id="totalSalaries">$0</span>
+                </div>
+                <div class="summary-item total">
+                    <span>Bénéfice Net:</span>
+                    <span id="netProfit">$0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Onglet Résumé Hebdomadaire -->
+        <div id="summary" class="tab-content">
+            <h2>Résumé Hebdomadaire</h2>
+            
+            <div class="summary-box">
+                <h3>Résumé Financier</h3>
+                <div class="summary-item">
+                    <span>CA Total Brut:</span>
+                    <span id="summaryGrossRevenue">$0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Impôts:</span>
+                    <span id="summaryTaxAmount">$0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Dépenses:</span>
+                    <span id="summaryExpenses">$0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Salaires:</span>
+                    <span id="summarySalaries">$0</span>
+                </div>
+                <div class="summary-item total">
+                    <span>Bénéfice Net:</span>
+                    <span id="summaryNetProfit">$0</span>
+                </div>
+            </div>
+            
+            <div class="summary-box">
+                <h3>Réserve Dynasty</h3>
+                <div class="summary-item">
+                    <span>Montant à conserver:</span>
+                    <span>$100,000</span>
+                </div>
+                <div class="summary-item">
+                    <span>Bénéfice après réserve:</span>
+                    <span id="profitAfterReserve">$0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Montant disponible pour primes:</span>
+                    <span id="bonusAmount">$0</span>
+                </div>
+            </div>
+            
+            <button id="distributeBonuses">Distribuer les Primes</button>
+        </div>
+    </div>
 
+    <script>
+        // Données de l'application
+        let employees = [];
+        let expenses = {
+            taxRate: 10,
+            weeklyExpenses: 0,
+            agencyCosts: 0
+        };
+        
+        // Éléments DOM
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const employeeNameInput = document.getElementById('employeeName');
+        const weeklyRevenueInput = document.getElementById('weeklyRevenue');
+        const addEmployeeBtn = document.getElementById('addEmployee');
+        const employeesTable = document.getElementById('employeesTable').getElementsByTagName('tbody')[0];
+        const commissionOptions = document.querySelectorAll('.commission-option');
+        const propertyValueInput = document.getElementById('propertyValue');
+        const customPercentContainer = document.getElementById('customPercentContainer');
+        const customPercentInput = document.getElementById('customPercent');
+        const calculateCommissionBtn = document.getElementById('calculateCommission');
+        const commissionResult = document.getElementById('commissionResult');
+        const taxRateInput = document.getElementById('taxRate');
+        const weeklyExpensesInput = document.getElementById('weeklyExpenses');
+        const agencyCostsInput = document.getElementById('agencyCosts');
+        const updateExpensesBtn = document.getElementById('updateExpenses');
+        const distributeBonusesBtn = document.getElementById('distributeBonuses');
+        
+        // Variables pour le calcul de commission
+        let selectedCommissionPercent = 15;
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger les données sauvegardées si disponibles
+            loadData();
+            
+            // Mettre à jour les résumés
+            updateExpensesSummary();
+            updateWeeklySummary();
+            
+            // Configuration des onglets
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Désactiver tous les onglets
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    // Activer l'onglet sélectionné
+                    tab.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Configuration des options de commission
+            commissionOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    commissionOptions.forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    
+                    if (option.getAttribute('data-percent') === 'custom') {
+                        customPercentContainer.style.display = 'block';
+                        selectedCommissionPercent = 0;
+                    } else {
+                        customPercentContainer.style.display = 'none';
+                        selectedCommissionPercent = parseInt(option.getAttribute('data-percent'));
+                    }
+                });
+            });
+            
+            // Calculer la commission
+            calculateCommissionBtn.addEventListener('click', calculateCommission);
+            
+            // Ajouter un employé
+            addEmployeeBtn.addEventListener('click', addEmployee);
+            
+            // Mettre à jour les dépenses
+            updateExpensesBtn.addEventListener('click', updateExpenses);
+            
+            // Distribuer les primes
+            distributeBonusesBtn.addEventListener('click', distributeBonuses);
+            
+            // Sélectionner 15% par défaut
+            document.querySelector('.commission-option[data-percent="15"]').click();
+        });
+        
+        // Fonctions
+        function addEmployee() {
+            const name = employeeNameInput.value.trim();
+            const revenue = parseFloat(weeklyRevenueInput.value);
+            
+            if (!name || isNaN(revenue) || revenue <= 0) {
+                alert('Veuillez entrer un nom valide et un chiffre d\'affaires positif');
+                return;
+            }
+            
+            const employee = {
+                id: Date.now(),
+                name: name,
+                weeklyRevenue: revenue,
+                commission: revenue * 0.15 // Commission fixe à 15%
+            };
+            
+            employees.push(employee);
+            updateEmployeesTable();
+            updateExpensesSummary();
+            updateWeeklySummary();
+            saveData();
+            
+            // Réinitialiser les champs
+            employeeNameInput.value = '';
+            weeklyRevenueInput.value = '';
+        }
+        
+        function updateEmployeesTable() {
+            employeesTable.innerHTML = '';
+            
+            employees.forEach(employee => {
+                const row = employeesTable.insertRow();
+                
+                const nameCell = row.insertCell(0);
+                nameCell.textContent = employee.name;
+                
+                const revenueCell = row.insertCell(1);
+                revenueCell.textContent = `$${employee.weeklyRevenue.toLocaleString()}`;
+                
+                const commissionCell = row.insertCell(2);
+                commissionCell.textContent = `$${employee.commission.toLocaleString()}`;
+                
+                const actionsCell = row.insertCell(3);
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Supprimer';
+                deleteBtn.classList.add('btn-danger');
+                deleteBtn.addEventListener('click', () => deleteEmployee(employee.id));
+                actionsCell.appendChild(deleteBtn);
+            });
+        }
+        
+        function deleteEmployee(id) {
+            employees = employees.filter(employee => employee.id !== id);
+            updateEmployeesTable();
+            updateExpensesSummary();
+            updateWeeklySummary();
+            saveData();
+        }
+        
+        function calculateCommission() {
+            const propertyValue = parseFloat(propertyValueInput.value);
+            
+            if (isNaN(propertyValue) || propertyValue <= 0) {
+                alert('Veuillez entrer une valeur de bien valide');
+                return;
+            }
+            
+            let percent = selectedCommissionPercent;
+            
+            if (customPercentContainer.style.display === 'block') {
+                percent = parseFloat(customPercentInput.value);
+                if (isNaN(percent) || percent <= 0) {
+                    alert('Veuillez entrer un pourcentage valide');
+                    return;
+                }
+            }
+            
+            const commission = propertyValue * (percent / 100);
+            commissionResult.textContent = `Commission: $${commission.toLocaleString()}`;
+        }
+        
+        function updateExpenses() {
+            expenses.taxRate = parseFloat(taxRateInput.value) || 0;
+            expenses.weeklyExpenses = parseFloat(weeklyExpensesInput.value) || 0;
+            expenses.agencyCosts = parseFloat(agencyCostsInput.value) || 0;
+            
+            updateExpensesSummary();
+            updateWeeklySummary();
+            saveData();
+        }
+        
+        function updateExpensesSummary() {
+            const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
+            const totalSalaries = employees.reduce((sum, employee) => sum + employee.commission, 0);
+            const taxAmount = totalRevenue * (expenses.taxRate / 100);
+            const totalExpenses = expenses.weeklyExpenses + expenses.agencyCosts;
+            const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
+            
+            document.getElementById('grossRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
+            document.getElementById('taxAmount').textContent = `$${taxAmount.toLocaleString()}`;
+            document.getElementById('totalExpenses').textContent = `$${totalExpenses.toLocaleString()}`;
+            document.getElementById('totalSalaries').textContent = `$${totalSalaries.toLocaleString()}`;
+            document.getElementById('netProfit').textContent = `$${netProfit.toLocaleString()}`;
+        }
+        
+        function updateWeeklySummary() {
+            const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
+            const totalSalaries = employees.reduce((sum, employee) => sum + employee.commission, 0);
+            const taxAmount = totalRevenue * (expenses.taxRate / 100);
+            const totalExpenses = expenses.weeklyExpenses + expenses.agencyCosts;
+            const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
+            const profitAfterReserve = Math.max(0, netProfit - 100000);
+            const bonusAmount = profitAfterReserve * 0.5; // 50% du bénéfice après réserve pour les primes
+            
+            document.getElementById('summaryGrossRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
+            document.getElementById('summaryTaxAmount').textContent = `$${taxAmount.toLocaleString()}`;
+            document.getElementById('summaryExpenses').textContent = `$${totalExpenses.toLocaleString()}`;
+            document.getElementById('summarySalaries').textContent = `$${totalSalaries.toLocaleString()}`;
+            document.getElementById('summaryNetProfit').textContent = `$${netProfit.toLocaleString()}`;
+            document.getElementById('profitAfterReserve').textContent = `$${profitAfterReserve.toLocaleString()}`;
+            document.getElementById('bonusAmount').textContent = `$${bonusAmount.toLocaleString()}`;
+        }
+        
+        function distributeBonuses() {
+            const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
+            const totalSalaries = employees.reduce((sum, employee) => sum + employee.commission, 0);
+            const taxAmount = totalRevenue * (expenses.taxRate / 100);
+            const totalExpenses = expenses.weeklyExpenses + expenses.agencyCosts;
+            const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
+            
+            if (netProfit < 100000) {
+                alert('Le bénéfice net est inférieur à $100,000. Impossible de distribuer des primes.');
+                return;
+            }
+            
+            const profitAfterReserve = netProfit - 100000;
+            const bonusAmount = profitAfterReserve * 0.5;
+            
+            // Distribuer les primes proportionnellement au CA de chaque employé
+            const totalEmployeeRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
+            
+            employees.forEach(employee => {
+                const bonus = (employee.weeklyRevenue / totalEmployeeRevenue) * bonusAmount;
+                alert(`Prime pour ${employee.name}: $${bonus.toLocaleString()}`);
+            });
+            
+            alert(`Total des primes distribuées: $${bonusAmount.toLocaleString()}`);
+        }
+        
+        function saveData() {
+            const data = {
+                employees: employees,
+                expenses: expenses
+            };
+            localStorage.setItem('agencyData', JSON.stringify(data));
+        }
+        
+        function loadData() {
+            const savedData = localStorage.getItem('agencyData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                employees = data.employees || [];
+                expenses = data.expenses || {
+                    taxRate: 10,
+                    weeklyExpenses: 0,
+                    agencyCosts: 0
+                };
+                
+                // Mettre à jour les champs d'entrée
+                taxRateInput.value = expenses.taxRate;
+                weeklyExpensesInput.value = expenses.weeklyExpenses;
+                agencyCostsInput.value = expenses.agencyCosts;
+                
+                updateEmployeesTable();
+            }
+        }
+    </script>
+</body>
+</html>
