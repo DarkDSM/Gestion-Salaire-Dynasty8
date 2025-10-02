@@ -374,7 +374,7 @@
             <div class="calculator">
                 <div>
                     <div class="form-group">
-                        <label for="propertyValue">🏠 Valeur du bien ($)</label>
+                        <label for="propertyValue"> Valeur du bien ($)</label>
                         <input type="number" id="propertyValue" placeholder="Entrez la valeur du bien">
                     </div>
                     
@@ -391,11 +391,11 @@
                     </div>
                     
                     <div class="form-group" id="customPercentContainer" style="display: none;">
-                        <label for="customPercent">🔧 Pourcentage personnalisé</label>
+                        <label for="customPercent"> Pourcentage personnalisé</label>
                         <input type="number" id="customPercent" placeholder="Entrez le pourcentage">
                     </div>
                     
-                    <button id="calculateCommission">🧮 Calculer la Commission</button>
+                    <button id="calculateCommission"> Calculer la Commission</button>
                 </div>
                 
                 <div class="calculator-result" id="commissionResult">
@@ -414,12 +414,7 @@
             </div>
             
             <div class="form-group">
-                <label for="weeklyExpenses">💸 Dépenses hebdomadaires ($)</label>
-                <input type="number" id="weeklyExpenses" placeholder="Entrez le montant des dépenses">
-            </div>
-            
-            <div class="form-group">
-                <label for="agencyCosts">🏢 Coûts de l'agence ($)</label>
+                <label for="agencyCosts">💸 Coûts de l'agence ($)</label>
                 <input type="number" id="agencyCosts" placeholder="Entrez les coûts de l'agence">
             </div>
             
@@ -494,7 +489,7 @@
                 </div>
             </div>
             
-            <button id="distributeBonuses">🎁 Distribuer les Primes</button>
+            <button id="distributeBonuses"> Distribuer les Primes</button>
         </div>
     </div>
 
@@ -760,7 +755,7 @@
             // Distribuer les primes proportionnellement au CA de chaque employé
             const totalEmployeeRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
             
-            let bonusMessage = "🎁 DISTRIBUTION DES PRIMES 🎁\n\n";
+            let bonusMessage = " DISTRIBUTION DES PRIMES \n\n";
             
             employees.forEach(employee => {
                 const bonus = totalEmployeeRevenue > 0 ? (employee.weeklyRevenue / totalEmployeeRevenue) * bonusAmount : 0;
