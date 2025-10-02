@@ -235,6 +235,10 @@
             background: linear-gradient(135deg, var(--success), #27ae60);
         }
         
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #e67e22);
+        }
+        
         .commission-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -319,6 +323,16 @@
             flex: 1;
         }
         
+        .current-week-info {
+            background: linear-gradient(135deg, var(--warning), #e67e22);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
         @media (max-width: 768px) {
             .calculator {
                 grid-template-columns: 1fr;
@@ -351,6 +365,10 @@
             <p>Gérez vos employés, calculez les commissions et les bénéfices pour GTA RP</p>
         </header>
         
+        <div class="current-week-info" id="currentWeekInfo">
+            <!-- Affiché dynamiquement -->
+        </div>
+        
         <div class="tabs">
             <div class="tab active" data-tab="employees">Employés</div>
             <div class="tab" data-tab="commission">Commissions</div>
@@ -361,7 +379,7 @@
         
         <!-- Onglet Gestion Employés -->
         <div id="employees" class="tab-content active">
-            <h2>Gestion des Employés</h2>
+            <h2>Gestion des Employés - Semaine <span id="currentWeekDisplay"></span></h2>
             <div class="form-group">
                 <label for="employeeName">Nom de l'employé</label>
                 <input type="text" id="employeeName" placeholder="Entrez le nom de l'employé">
@@ -480,7 +498,7 @@
         
         <!-- Onglet Résumé Hebdomadaire -->
         <div id="summary" class="tab-content">
-            <h2>Résumé Hebdomadaire</h2>
+            <h2>Résumé Hebdomadaire - Semaine <span id="summaryWeekDisplay"></span></h2>
             
             <div class="summary-box">
                 <h3>Résumé Financier</h3>
@@ -523,7 +541,8 @@
             </div>
             
             <button id="distributeBonuses">Distribuer les Primes</button>
-            <button id="saveWeekData" style="background: var(--success); margin-left: 15px;">Sauvegarder la Semaine</button>
+            <button id="saveWeekData" style="background: var(--success); margin-left: 15px;">Finaliser la Semaine</button>
+            <button id="newWeek" style="background: var(--warning); margin-left: 15px;">Nouvelle Semaine</button>
         </div>
 
         <!-- Nouvel Onglet Historique & Graphiques -->
@@ -605,6 +624,7 @@
             agencyCosts: 0
         };
         let weeklyHistory = [];
+        let currentWeek = getCurrentWeekNumber();
         
         // Éléments DOM
         const tabs = document.querySelectorAll('.tab');
@@ -625,9 +645,13 @@
         const updateExpensesBtn = document.getElementById('updateExpenses');
         const distributeBonusesBtn = document.getElementById('distributeBonuses');
         const saveWeekDataBtn = document.getElementById('saveWeekData');
+        const newWeekBtn = document.getElementById('newWeek');
         const weekSelector = document.getElementById('weekSelector');
         const chartTypeSelect = document.getElementById('chartType');
         const historyTable = document.getElementById('historyTable').getElementsByTagName('tbody')[0];
+        const currentWeekInfo = document.getElementById('currentWeekInfo');
+        const currentWeekDisplay = document.getElementById('currentWeekDisplay');
+        const summaryWeekDisplay = document.getElementById('summaryWeekDisplay');
         
         // Variables pour le calcul de commission
         let selectedCommissionPercent = 15;
@@ -636,10 +660,34 @@
         let employeeChart = null;
         let totalChart = null;
         
+        // Fonction pour obtenir le numéro de semaine actuel
+        function getCurrentWeekNumber() {
+            const now = new Date();
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            const days = Math.floor((now - startOfYear) / (24 * 60 * 60 * 1000));
+            return Math.ceil((days + 1) / 7);
+        }
+        
+        // Fonction pour formater la date de la semaine
+        function getWeekDateRange(weekNumber) {
+            const year = new Date().getFullYear();
+            const firstDayOfYear = new Date(year, 0, 1);
+            const daysOffset = (weekNumber - 1) * 7;
+            const startDate = new Date(firstDayOfYear);
+            startDate.setDate(firstDayOfYear.getDate() + daysOffset);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 6);
+            
+            return `${startDate.toLocaleDateString('fr-FR')} au ${endDate.toLocaleDateString('fr-FR')}`;
+        }
+        
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
             // Charger les données sauvegardées si disponibles
             loadData();
+            
+            // Mettre à jour l'affichage de la semaine
+            updateWeekDisplay();
             
             // Mettre à jour les résumés
             updateExpensesSummary();
@@ -697,6 +745,9 @@
             // Sauvegarder les données de la semaine
             saveWeekDataBtn.addEventListener('click', saveWeekData);
             
+            // Commencer une nouvelle semaine
+            newWeekBtn.addEventListener('click', startNewWeek);
+            
             // Changer le type de graphique
             chartTypeSelect.addEventListener('change', updateCharts);
             
@@ -708,6 +759,13 @@
         });
         
         // Fonctions
+        function updateWeekDisplay() {
+            const weekRange = getWeekDateRange(currentWeek);
+            currentWeekInfo.textContent = `Semaine ${currentWeek} (${weekRange}) - En cours de saisie`;
+            currentWeekDisplay.textContent = currentWeek;
+            summaryWeekDisplay.textContent = currentWeek;
+        }
+        
         function addEmployee() {
             const name = employeeNameInput.value.trim();
             const grade = employeeGradeInput.value;
@@ -884,7 +942,8 @@
             
             const weekData = {
                 id: Date.now(),
-                date: new Date().toLocaleDateString('fr-FR'),
+                weekNumber: currentWeek,
+                date: getWeekDateRange(currentWeek),
                 employees: JSON.parse(JSON.stringify(employees)), // Copie profonde
                 totalRevenue: totalRevenue,
                 netProfit: netProfit,
@@ -896,7 +955,32 @@
             updateHistoryDisplay();
             saveData();
             
-            alert('Données de la semaine sauvegardées avec succès !');
+            alert(`Semaine ${currentWeek} sauvegardée avec succès ! Vous pouvez maintenant commencer une nouvelle semaine.`);
+        }
+        
+        function startNewWeek() {
+            if (employees.length > 0) {
+                if (!confirm('Êtes-vous sûr de vouloir commencer une nouvelle semaine ? Les données actuelles seront réinitialisées.')) {
+                    return;
+                }
+            }
+            
+            // Réinitialiser les employés (conserver la liste mais réinitialiser les CA)
+            employees.forEach(employee => {
+                employee.weeklyRevenue = 0;
+            });
+            
+            // Mettre à jour la semaine actuelle
+            currentWeek = getCurrentWeekNumber();
+            updateWeekDisplay();
+            
+            // Mettre à jour les affichages
+            updateEmployeesTable();
+            updateExpensesSummary();
+            updateWeeklySummary();
+            saveData();
+            
+            alert(`Nouvelle semaine ${currentWeek} commencée ! Vous pouvez maintenant saisir les nouveaux CA.`);
         }
         
         function updateHistoryDisplay() {
@@ -905,7 +989,7 @@
             weeklyHistory.forEach((week, index) => {
                 const option = document.createElement('option');
                 option.value = index;
-                option.textContent = `Semaine ${week.date}`;
+                option.textContent = `Semaine ${week.weekNumber} (${week.date})`;
                 weekSelector.appendChild(option);
             });
             
@@ -915,7 +999,7 @@
                 const row = historyTable.insertRow();
                 
                 const dateCell = row.insertCell(0);
-                dateCell.textContent = week.date;
+                dateCell.textContent = `Semaine ${week.weekNumber} (${week.date})`;
                 
                 const revenueCell = row.insertCell(1);
                 revenueCell.textContent = `$${week.totalRevenue.toLocaleString()}`;
@@ -1000,12 +1084,12 @@
                 totalChart.destroy();
             }
             
-            const weekLabels = weeklyHistory.map(week => week.date);
+            const weekLabels = weeklyHistory.map(week => `S${week.weekNumber}`);
             const revenueData = weeklyHistory.map(week => week.totalRevenue);
             
             // Ajouter les données actuelles si on regarde l'historique
-            if (selectedWeek !== 'current') {
-                weekLabels.push('Actuelle');
+            if (selectedWeek !== 'current' && employees.length > 0) {
+                weekLabels.push(`S${currentWeek}*`);
                 revenueData.push(employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0));
             }
             
@@ -1040,7 +1124,8 @@
             const data = {
                 employees: employees,
                 expenses: expenses,
-                weeklyHistory: weeklyHistory
+                weeklyHistory: weeklyHistory,
+                currentWeek: currentWeek
             };
             localStorage.setItem('agencyData', JSON.stringify(data));
         }
@@ -1055,11 +1140,13 @@
                     agencyCosts: 0
                 };
                 weeklyHistory = data.weeklyHistory || [];
+                currentWeek = data.currentWeek || getCurrentWeekNumber();
                 
                 // Mettre à jour les champs d'entrée
                 taxRateInput.value = expenses.taxRate;
                 agencyCostsInput.value = expenses.agencyCosts;
                 
+                updateWeekDisplay();
                 updateEmployeesTable();
             }
         }
