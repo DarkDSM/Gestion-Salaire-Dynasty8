@@ -716,79 +716,49 @@
             document.getElementById('netProfit').textContent = `$${netProfit.toLocaleString()}`;
         }
         
-        function updateWeeklySummary() {
-            const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
-            const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
-            const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.agencyCosts;
-            const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
-            const profitAfterReserve = Math.max(0, netProfit - 100000);
-            const bonusAmount = profitAfterReserve * 0.5; // 50% du bénéfice après réserve pour les primes
-            
-            document.getElementById('summaryGrossRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
-            document.getElementById('summaryTaxAmount').textContent = `$${taxAmount.toLocaleString()}`;
-            document.getElementById('summaryExpenses').textContent = `$${totalExpenses.toLocaleString()}`;
-            document.getElementById('summarySalaries').textContent = `$${totalSalaries.toLocaleString()}`;
-            document.getElementById('summaryNetProfit').textContent = `$${netProfit.toLocaleString()}`;
-            document.getElementById('profitAfterReserve').textContent = `$${profitAfterReserve.toLocaleString()}`;
-            document.getElementById('bonusAmount').textContent = `$${bonusAmount.toLocaleString()}`;
-        }
-        
-        function distributeBonuses() {
-            const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
-            const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
-            const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.agencyCosts;
-            const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
-            
-            if (netProfit < 100000) {
-                alert('Le bénéfice net est inférieur à $100,000. Impossible de distribuer des primes.');
-                return;
-            }
-            
-            const profitAfterReserve = netProfit - 100000;
-            const bonusAmount = profitAfterReserve * 0.5;
-            
-            // Distribuer les primes proportionnellement au CA de chaque employé
-            const totalEmployeeRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
-            
-            let bonusMessage = "DISTRIBUTION DES PRIMES \n\n";
-            
-            employees.forEach(employee => {
-                const bonus = totalEmployeeRevenue > 0 ? (employee.weeklyRevenue / totalEmployeeRevenue) * bonusAmount : 0;
-                bonusMessage += `${employee.name} (${employee.gradeName}): $${bonus.toLocaleString()}\n`;
-            });
-            
-            bonusMessage += `\nTOTAL DES PRIMES: $${bonusAmount.toLocaleString()}`;
-            
-            alert(bonusMessage);
-        }
-        
-        function saveData() {
-            const data = {
-                employees: employees,
-                expenses: expenses
-            };
-            localStorage.setItem('agencyData', JSON.stringify(data));
-        }
-        
-        function loadData() {
-            const savedData = localStorage.getItem('agencyData');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                employees = data.employees || [];
-                expenses = data.expenses || {
-                    taxRate: 10,
-                    agencyCosts: 0
-                };
-                
-                // Mettre à jour les champs d'entrée
-                taxRateInput.value = expenses.taxRate;
-                agencyCostsInput.value = expenses.agencyCosts;
-                
-                updateEmployeesTable();
-            }
-        }
-    </script>
-</body>
-</html>
+function updateWeeklySummary() {
+    const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
+    const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
+    const taxAmount = totalRevenue * (expenses.taxRate / 100);
+    const totalExpenses = expenses.agencyCosts;
+    const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
+    const profitAfterReserve = Math.max(0, netProfit - 100000);
+    const bonusAmount = profitAfterReserve; 
+    
+    document.getElementById('summaryGrossRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
+    document.getElementById('summaryTaxAmount').textContent = `$${taxAmount.toLocaleString()}`;
+    document.getElementById('summaryExpenses').textContent = `$${totalExpenses.toLocaleString()}`;
+    document.getElementById('summarySalaries').textContent = `$${totalSalaries.toLocaleString()}`;
+    document.getElementById('summaryNetProfit').textContent = `$${netProfit.toLocaleString()}`;
+    document.getElementById('profitAfterReserve').textContent = `$${profitAfterReserve.toLocaleString()}`;
+    document.getElementById('bonusAmount').textContent = `$${bonusAmount.toLocaleString()}`;
+}
+
+function distributeBonuses() {
+    const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
+    const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
+    const taxAmount = totalRevenue * (expenses.taxRate / 100);
+    const totalExpenses = expenses.agencyCosts;
+    const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
+    
+    if (netProfit < 100000) {
+        alert('Le bénéfice net est inférieur à $100,000. Impossible de distribuer des primes.');
+        return;
+    }
+    
+    const profitAfterReserve = netProfit - 100000;
+    const bonusAmount = profitAfterReserve; 
+    
+    const totalEmployeeRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
+    
+    let bonusMessage = "DISTRIBUTION DES PRIMES \n\n";
+    
+    employees.forEach(employee => {
+        const bonus = totalEmployeeRevenue > 0 ? (employee.weeklyRevenue / totalEmployeeRevenue) * bonusAmount : 0;
+        bonusMessage += `${employee.name} (${employee.gradeName}): $${bonus.toLocaleString()}\n`;
+    });
+    
+    bonusMessage += `\nTOTAL DES PRIMES: $${bonusAmount.toLocaleString()}`;
+    
+    alert(bonusMessage);
+}
