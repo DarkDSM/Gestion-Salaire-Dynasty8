@@ -219,7 +219,7 @@
             padding: 30px;
             border-radius: 10px;
             text-align: center;
-            font-size: 1.8rem;
+            font-size: 1.5rem; /* Réduction de la taille du texte */
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -320,22 +320,22 @@
         </header>
         
         <div class="tabs">
-            <div class="tab active" data-tab="employees">👥 Employés</div>
-            <div class="tab" data-tab="commission">💰 Commissions</div>
-            <div class="tab" data-tab="expenses">📊 Dépenses & Impôts</div>
-            <div class="tab" data-tab="summary">📈 Résumé Hebdo</div>
+            <div class="tab active" data-tab="employees">Employés</div>
+            <div class="tab" data-tab="commission">Commissions</div>
+            <div class="tab" data-tab="expenses">Dépenses & Impôts</div>
+            <div class="tab" data-tab="summary">Résumé Hebdo</div>
         </div>
         
         <!-- Onglet Gestion Employés -->
         <div id="employees" class="tab-content active">
             <h2>Gestion des Employés</h2>
             <div class="form-group">
-                <label for="employeeName">👤 Nom de l'employé</label>
+                <label for="employeeName">Nom de l'employé</label>
                 <input type="text" id="employeeName" placeholder="Entrez le nom de l'employé">
             </div>
             
             <div class="form-group">
-                <label for="employeeGrade">🎯 Grade</label>
+                <label for="employeeGrade">Grade</label>
                 <select id="employeeGrade">
                     <option value="patron">Patron - $40,000</option>
                     <option value="copatron">Co-Patron - $35,000</option>
@@ -346,11 +346,11 @@
             </div>
             
             <div class="form-group">
-                <label for="weeklyRevenue">💵 Chiffre d'affaires hebdomadaire ($)</label>
+                <label for="weeklyRevenue">Chiffre d'affaires hebdomadaire ($)</label>
                 <input type="number" id="weeklyRevenue" placeholder="Entrez le CA de la semaine">
             </div>
             
-            <button id="addEmployee">➕ Ajouter Employé</button>
+            <button id="addEmployee">Ajouter Employé</button>
             
             <table id="employeesTable">
                 <thead>
@@ -370,16 +370,16 @@
         
         <!-- Onglet Calculateur de Commission -->
         <div id="commission" class="tab-content">
-            <h2>💰 Calculateur de Commission</h2>
+            <h2>Calculateur de Commission</h2>
             <div class="calculator">
                 <div>
                     <div class="form-group">
-                        <label for="propertyValue"> Valeur du bien ($)</label>
+                        <label for="propertyValue">Valeur du bien ($)</label>
                         <input type="number" id="propertyValue" placeholder="Entrez la valeur du bien">
                     </div>
                     
                     <div class="form-group">
-                        <label>📊 Sélectionnez le pourcentage de commission</label>
+                        <label>Sélectionnez le pourcentage de commission</label>
                         <div class="commission-options">
                             <div class="commission-option" data-percent="8">8%</div>
                             <div class="commission-option" data-percent="15">15%</div>
@@ -391,11 +391,11 @@
                     </div>
                     
                     <div class="form-group" id="customPercentContainer" style="display: none;">
-                        <label for="customPercent"> Pourcentage personnalisé</label>
+                        <label for="customPercent">Pourcentage personnalisé</label>
                         <input type="number" id="customPercent" placeholder="Entrez le pourcentage">
                     </div>
                     
-                    <button id="calculateCommission"> Calculer la Commission</button>
+                    <button id="calculateCommission">Calculer la Commission</button>
                 </div>
                 
                 <div class="calculator-result" id="commissionResult">
@@ -406,22 +406,22 @@
         
         <!-- Onglet Dépenses & Impôts -->
         <div id="expenses" class="tab-content">
-            <h2>📊 Dépenses & Impôts</h2>
+            <h2>Dépenses & Impôts</h2>
             
             <div class="form-group">
-                <label for="taxRate">🏛️ Taux d'imposition (%)</label>
+                <label for="taxRate">Taux d'imposition (%)</label>
                 <input type="number" id="taxRate" value="10" placeholder="Entrez le taux d'imposition">
             </div>
             
             <div class="form-group">
-                <label for="agencyCosts">💸 Coûts de l'agence ($)</label>
+                <label for="agencyCosts">Coûts de l'agence ($)</label>
                 <input type="number" id="agencyCosts" placeholder="Entrez les coûts de l'agence">
             </div>
             
-            <button id="updateExpenses"> Mettre à jour</button>
+            <button id="updateExpenses">Mettre à jour</button>
             
             <div class="summary-box">
-                <h3>📈 Résumé des Dépenses</h3>
+                <h3>Résumé des Dépenses</h3>
                 <div class="summary-item">
                     <span>CA Total Brut:</span>
                     <span id="grossRevenue" class="money">$0</span>
@@ -447,10 +447,10 @@
         
         <!-- Onglet Résumé Hebdomadaire -->
         <div id="summary" class="tab-content">
-            <h2>📈 Résumé Hebdomadaire</h2>
+            <h2>Résumé Hebdomadaire</h2>
             
             <div class="summary-box">
-                <h3>💰 Résumé Financier</h3>
+                <h3>Résumé Financier</h3>
                 <div class="summary-item">
                     <span>CA Total Brut:</span>
                     <span id="summaryGrossRevenue" class="money">$0</span>
@@ -474,7 +474,7 @@
             </div>
             
             <div class="summary-box">
-                <h3>🏦 Réserve Dynasty</h3>
+                <h3>Réserve Dynasty</h3>
                 <div class="summary-item">
                     <span>Montant à conserver:</span>
                     <span class="money">$100,000</span>
@@ -489,7 +489,7 @@
                 </div>
             </div>
             
-            <button id="distributeBonuses"> Distribuer les Primes</button>
+            <button id="distributeBonuses">Distribuer les Primes</button>
         </div>
     </div>
 
@@ -516,7 +516,6 @@
         let employees = [];
         let expenses = {
             taxRate: 10,
-            weeklyExpenses: 0,
             agencyCosts: 0
         };
         
@@ -535,7 +534,6 @@
         const calculateCommissionBtn = document.getElementById('calculateCommission');
         const commissionResult = document.getElementById('commissionResult');
         const taxRateInput = document.getElementById('taxRate');
-        const weeklyExpensesInput = document.getElementById('weeklyExpenses');
         const agencyCostsInput = document.getElementById('agencyCosts');
         const updateExpensesBtn = document.getElementById('updateExpenses');
         const distributeBonusesBtn = document.getElementById('distributeBonuses');
@@ -697,7 +695,6 @@
         
         function updateExpenses() {
             expenses.taxRate = parseFloat(taxRateInput.value) || 0;
-            expenses.weeklyExpenses = parseFloat(weeklyExpensesInput.value) || 0;
             expenses.agencyCosts = parseFloat(agencyCostsInput.value) || 0;
             
             updateExpensesSummary();
@@ -709,7 +706,7 @@
             const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
             const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.weeklyExpenses + expenses.agencyCosts;
+            const totalExpenses = expenses.agencyCosts;
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
             
             document.getElementById('grossRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
@@ -723,7 +720,7 @@
             const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
             const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.weeklyExpenses + expenses.agencyCosts;
+            const totalExpenses = expenses.agencyCosts;
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
             const profitAfterReserve = Math.max(0, netProfit - 100000);
             const bonusAmount = profitAfterReserve * 0.5; // 50% du bénéfice après réserve pour les primes
@@ -741,7 +738,7 @@
             const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
             const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.weeklyExpenses + expenses.agencyCosts;
+            const totalExpenses = expenses.agencyCosts;
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
             
             if (netProfit < 100000) {
@@ -762,7 +759,7 @@
                 bonusMessage += `${employee.name} (${employee.gradeName}): $${bonus.toLocaleString()}\n`;
             });
             
-            bonusMessage += `\n💰 TOTAL DES PRIMES: $${bonusAmount.toLocaleString()}`;
+            bonusMessage += `\n TOTAL DES PRIMES: $${bonusAmount.toLocaleString()}`;
             
             alert(bonusMessage);
         }
@@ -782,13 +779,11 @@
                 employees = data.employees || [];
                 expenses = data.expenses || {
                     taxRate: 10,
-                    weeklyExpenses: 0,
                     agencyCosts: 0
                 };
                 
                 // Mettre à jour les champs d'entrée
                 taxRateInput.value = expenses.taxRate;
-                weeklyExpensesInput.value = expenses.weeklyExpenses;
                 agencyCostsInput.value = expenses.agencyCosts;
                 
                 updateEmployeesTable();
