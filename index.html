@@ -292,6 +292,33 @@
         .grade-employe { background: linear-gradient(135deg, #3498db, #2980b9); }
         .grade-stagiaire { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
         
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            height: 400px;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .week-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .week-selector select {
+            flex: 1;
+        }
+        
         @media (max-width: 768px) {
             .calculator {
                 grid-template-columns: 1fr;
@@ -305,11 +332,16 @@
                 flex-direction: column;
             }
             
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
             h1 {
                 font-size: 2rem;
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -324,6 +356,7 @@
             <div class="tab" data-tab="commission">Commissions</div>
             <div class="tab" data-tab="expenses">Dépenses & Impôts</div>
             <div class="tab" data-tab="summary">Résumé Hebdo</div>
+            <div class="tab" data-tab="history">Historique & Graphiques</div>
         </div>
         
         <!-- Onglet Gestion Employés -->
@@ -490,6 +523,59 @@
             </div>
             
             <button id="distributeBonuses">Distribuer les Primes</button>
+            <button id="saveWeekData" style="background: var(--success); margin-left: 15px;">Sauvegarder la Semaine</button>
+        </div>
+
+        <!-- Nouvel Onglet Historique & Graphiques -->
+        <div id="history" class="tab-content">
+            <h2>Historique & Graphiques</h2>
+            
+            <div class="week-selector">
+                <div class="form-group" style="flex: 2;">
+                    <label for="weekSelector">Sélectionner une semaine</label>
+                    <select id="weekSelector">
+                        <option value="current">Semaine actuelle</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="chartType">Type de graphique</label>
+                    <select id="chartType">
+                        <option value="bar">Barres</option>
+                        <option value="line">Lignes</option>
+                        <option value="pie">Camembert</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>CA par Employé</h3>
+                    <canvas id="employeeChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Évolution du CA Total</h3>
+                    <canvas id="totalChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="summary-box">
+                <h3>Historique des Semaines</h3>
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Semaine</th>
+                            <th>CA Total</th>
+                            <th>Bénéfice Net</th>
+                            <th>Primes Distribuées</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Les lignes seront ajoutées dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -518,6 +604,7 @@
             taxRate: 10,
             agencyCosts: 0
         };
+        let weeklyHistory = [];
         
         // Éléments DOM
         const tabs = document.querySelectorAll('.tab');
@@ -537,9 +624,17 @@
         const agencyCostsInput = document.getElementById('agencyCosts');
         const updateExpensesBtn = document.getElementById('updateExpenses');
         const distributeBonusesBtn = document.getElementById('distributeBonuses');
+        const saveWeekDataBtn = document.getElementById('saveWeekData');
+        const weekSelector = document.getElementById('weekSelector');
+        const chartTypeSelect = document.getElementById('chartType');
+        const historyTable = document.getElementById('historyTable').getElementsByTagName('tbody')[0];
         
         // Variables pour le calcul de commission
         let selectedCommissionPercent = 15;
+        
+        // Variables pour les graphiques
+        let employeeChart = null;
+        let totalChart = null;
         
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
@@ -549,6 +644,7 @@
             // Mettre à jour les résumés
             updateExpensesSummary();
             updateWeeklySummary();
+            updateHistoryDisplay();
             
             // Configuration des onglets
             tabs.forEach(tab => {
@@ -562,6 +658,11 @@
                     // Activer l'onglet sélectionné
                     tab.classList.add('active');
                     document.getElementById(tabId).classList.add('active');
+                    
+                    // Mettre à jour les graphiques si onglet historique
+                    if (tabId === 'history') {
+                        updateCharts();
+                    }
                 });
             });
             
@@ -592,6 +693,15 @@
             
             // Distribuer les primes
             distributeBonusesBtn.addEventListener('click', distributeBonuses);
+            
+            // Sauvegarder les données de la semaine
+            saveWeekDataBtn.addEventListener('click', saveWeekData);
+            
+            // Changer le type de graphique
+            chartTypeSelect.addEventListener('change', updateCharts);
+            
+            // Changer la semaine sélectionnée
+            weekSelector.addEventListener('change', updateCharts);
             
             // Sélectionner 15% par défaut
             document.querySelector('.commission-option[data-percent="15"]').click();
@@ -723,7 +833,7 @@
             const totalExpenses = expenses.agencyCosts;
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
             const profitAfterReserve = Math.max(0, netProfit - 100000);
-            const bonusAmount = profitAfterReserve; // CORRECTION : 100% pour les primes
+            const bonusAmount = profitAfterReserve;
             
             document.getElementById('summaryGrossRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
             document.getElementById('summaryTaxAmount').textContent = `$${taxAmount.toLocaleString()}`;
@@ -747,9 +857,8 @@
             }
             
             const profitAfterReserve = netProfit - 100000;
-            const bonusAmount = profitAfterReserve; // CORRECTION : 100% pour les primes
+            const bonusAmount = profitAfterReserve;
             
-            // Distribuer les primes proportionnellement au CA de chaque employé
             const totalEmployeeRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
             
             let bonusMessage = "DISTRIBUTION DES PRIMES \n\n";
@@ -764,10 +873,174 @@
             alert(bonusMessage);
         }
         
+        function saveWeekData() {
+            const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
+            const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
+            const taxAmount = totalRevenue * (expenses.taxRate / 100);
+            const totalExpenses = expenses.agencyCosts;
+            const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
+            const profitAfterReserve = Math.max(0, netProfit - 100000);
+            const bonusAmount = profitAfterReserve;
+            
+            const weekData = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('fr-FR'),
+                employees: JSON.parse(JSON.stringify(employees)), // Copie profonde
+                totalRevenue: totalRevenue,
+                netProfit: netProfit,
+                bonusAmount: bonusAmount,
+                expenses: JSON.parse(JSON.stringify(expenses))
+            };
+            
+            weeklyHistory.push(weekData);
+            updateHistoryDisplay();
+            saveData();
+            
+            alert('Données de la semaine sauvegardées avec succès !');
+        }
+        
+        function updateHistoryDisplay() {
+            // Mettre à jour le sélecteur de semaines
+            weekSelector.innerHTML = '<option value="current">Semaine actuelle</option>';
+            weeklyHistory.forEach((week, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `Semaine ${week.date}`;
+                weekSelector.appendChild(option);
+            });
+            
+            // Mettre à jour le tableau d'historique
+            historyTable.innerHTML = '';
+            weeklyHistory.forEach((week, index) => {
+                const row = historyTable.insertRow();
+                
+                const dateCell = row.insertCell(0);
+                dateCell.textContent = week.date;
+                
+                const revenueCell = row.insertCell(1);
+                revenueCell.textContent = `$${week.totalRevenue.toLocaleString()}`;
+                revenueCell.classList.add('money');
+                
+                const profitCell = row.insertCell(2);
+                profitCell.textContent = `$${week.netProfit.toLocaleString()}`;
+                profitCell.classList.add('money', 'positive');
+                
+                const bonusCell = row.insertCell(3);
+                bonusCell.textContent = `$${week.bonusAmount.toLocaleString()}`;
+                bonusCell.classList.add('money', 'positive');
+                
+                const actionsCell = row.insertCell(4);
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Supprimer';
+                deleteBtn.classList.add('btn-danger');
+                deleteBtn.addEventListener('click', () => deleteWeekData(index));
+                actionsCell.appendChild(deleteBtn);
+            });
+        }
+        
+        function deleteWeekData(index) {
+            weeklyHistory.splice(index, 1);
+            updateHistoryDisplay();
+            saveData();
+        }
+        
+        function updateCharts() {
+            const selectedWeek = weekSelector.value;
+            const chartType = chartTypeSelect.value;
+            let dataToShow;
+            
+            if (selectedWeek === 'current') {
+                // Données actuelles
+                dataToShow = {
+                    employees: employees,
+                    totalRevenue: employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0)
+                };
+            } else {
+                // Données d'une semaine historique
+                const weekIndex = parseInt(selectedWeek);
+                dataToShow = weeklyHistory[weekIndex];
+            }
+            
+            // Graphique des employés
+            const employeeCtx = document.getElementById('employeeChart').getContext('2d');
+            if (employeeChart) {
+                employeeChart.destroy();
+            }
+            
+            employeeChart = new Chart(employeeCtx, {
+                type: chartType,
+                data: {
+                    labels: dataToShow.employees.map(emp => emp.name),
+                    datasets: [{
+                        label: 'CA par Employé ($)',
+                        data: dataToShow.employees.map(emp => emp.weeklyRevenue),
+                        backgroundColor: [
+                            '#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6',
+                            '#1abc9c', '#d35400', '#c0392b', '#16a085', '#8e44ad'
+                        ],
+                        borderColor: '#2c3e50',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Chiffre d\'Affaires par Employé'
+                        }
+                    }
+                }
+            });
+            
+            // Graphique de l'évolution du CA total
+            const totalCtx = document.getElementById('totalChart').getContext('2d');
+            if (totalChart) {
+                totalChart.destroy();
+            }
+            
+            const weekLabels = weeklyHistory.map(week => week.date);
+            const revenueData = weeklyHistory.map(week => week.totalRevenue);
+            
+            // Ajouter les données actuelles si on regarde l'historique
+            if (selectedWeek !== 'current') {
+                weekLabels.push('Actuelle');
+                revenueData.push(employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0));
+            }
+            
+            totalChart = new Chart(totalCtx, {
+                type: 'line',
+                data: {
+                    labels: weekLabels,
+                    datasets: [{
+                        label: 'CA Total ($)',
+                        data: revenueData,
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: '#3498db',
+                        borderWidth: 3,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Évolution du Chiffre d\'Affaires Total'
+                        }
+                    }
+                }
+            });
+        }
+        
         function saveData() {
             const data = {
                 employees: employees,
-                expenses: expenses
+                expenses: expenses,
+                weeklyHistory: weeklyHistory
             };
             localStorage.setItem('agencyData', JSON.stringify(data));
         }
@@ -781,6 +1054,7 @@
                     taxRate: 10,
                     agencyCosts: 0
                 };
+                weeklyHistory = data.weeklyHistory || [];
                 
                 // Mettre à jour les champs d'entrée
                 taxRateInput.value = expenses.taxRate;
