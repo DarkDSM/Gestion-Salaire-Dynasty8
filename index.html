@@ -23,53 +23,65 @@
         }
         
         body {
-            background-color: #f5f7fa;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
             line-height: 1.6;
             padding: 20px;
+            min-height: 100vh;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
         
         header {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
+            margin-bottom: 40px;
+            padding: 30px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .agency-logo {
+            font-size: 3rem;
+            margin-bottom: 15px;
         }
         
         .tabs {
             display: flex;
-            margin-bottom: 20px;
-            background-color: white;
+            margin-bottom: 30px;
+            background: white;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
         }
         
         .tab {
-            padding: 15px 25px;
+            padding: 18px 25px;
             cursor: pointer;
             flex: 1;
             text-align: center;
             font-weight: bold;
             transition: all 0.3s ease;
+            min-width: 200px;
         }
         
         .tab.active {
-            background-color: var(--secondary);
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
             color: white;
         }
         
@@ -79,11 +91,17 @@
         
         .tab-content {
             display: none;
-            background-color: white;
-            padding: 25px;
+            background: white;
+            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .tab-content.active {
@@ -91,148 +109,188 @@
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: bold;
             color: var(--dark);
+            font-size: 1.1rem;
         }
         
         input, select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 14px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
             font-size: 16px;
-            transition: border 0.3s;
+            transition: all 0.3s;
         }
         
         input:focus, select:focus {
             border-color: var(--secondary);
             outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
         }
         
         button {
-            background-color: var(--secondary);
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
+            padding: 15px 25px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
         
         button:hover {
-            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
         }
         
         th, td {
-            padding: 12px 15px;
+            padding: 15px 20px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #e1e8ed;
         }
         
         th {
-            background-color: var(--light);
+            background: linear-gradient(135deg, var(--primary), #34495e);
+            color: white;
             font-weight: bold;
-            color: var(--dark);
         }
         
         tr:hover {
-            background-color: #f9f9f9;
+            background-color: #f8f9fa;
         }
         
         .summary-box {
-            background-color: white;
-            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            border-left: 5px solid var(--secondary);
         }
         
         .summary-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 1.1rem;
         }
         
         .summary-item.total {
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: var(--primary);
             border-bottom: none;
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 2px solid var(--secondary);
         }
         
         .calculator {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 30px;
         }
         
         .calculator-result {
-            background-color: var(--light);
-            padding: 20px;
+            background: linear-gradient(135deg, var(--success), #27ae60);
+            color: white;
+            padding: 30px;
             border-radius: 10px;
             text-align: center;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(46, 204, 113, 0.3);
         }
         
         .btn-danger {
-            background-color: var(--danger);
-        }
-        
-        .btn-danger:hover {
-            background-color: #c0392b;
+            background: linear-gradient(135deg, var(--danger), #c0392b);
         }
         
         .btn-success {
-            background-color: var(--success);
-        }
-        
-        .btn-success:hover {
-            background-color: #27ae60;
+            background: linear-gradient(135deg, var(--success), #27ae60);
         }
         
         .commission-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
         
         .commission-option {
-            padding: 15px;
+            padding: 20px;
             text-align: center;
-            background-color: var(--light);
-            border-radius: 5px;
+            background: var(--light);
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: bold;
+            border: 2px solid transparent;
         }
         
         .commission-option:hover {
-            background-color: #d6dbdf;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         .commission-option.selected {
-            background-color: var(--secondary);
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+            border-color: var(--secondary);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .money {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        
+        .positive {
+            color: var(--success);
+        }
+        
+        .negative {
+            color: var(--danger);
+        }
+        
+        .grade-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
             color: white;
         }
+        
+        .grade-patron { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .grade-copatron { background: linear-gradient(135deg, #e67e22, #d35400); }
+        .grade-manager { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .grade-employe { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .grade-stagiaire { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
         
         @media (max-width: 768px) {
             .calculator {
@@ -242,44 +300,65 @@
             .commission-options {
                 grid-template-columns: repeat(2, 1fr);
             }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
+            <div class="agency-logo">🏢</div>
             <h1>Agence Immobilière - Tableau de Gestion</h1>
-            <p>Gérez vos employés, calculer les commissions et les bénéfices</p>
+            <p>Gérez vos employés, calculez les commissions et les bénéfices pour GTA RP</p>
         </header>
         
         <div class="tabs">
-            <div class="tab active" data-tab="employees">Gestion Employés</div>
-            <div class="tab" data-tab="commission">Calculateur de Commission</div>
-            <div class="tab" data-tab="expenses">Dépenses & Impôts</div>
-            <div class="tab" data-tab="summary">Résumé Hebdomadaire</div>
+            <div class="tab active" data-tab="employees">👥 Employés</div>
+            <div class="tab" data-tab="commission">💰 Commissions</div>
+            <div class="tab" data-tab="expenses">📊 Dépenses & Impôts</div>
+            <div class="tab" data-tab="summary">📈 Résumé Hebdo</div>
         </div>
         
         <!-- Onglet Gestion Employés -->
         <div id="employees" class="tab-content active">
             <h2>Gestion des Employés</h2>
             <div class="form-group">
-                <label for="employeeName">Nom de l'employé</label>
+                <label for="employeeName">👤 Nom de l'employé</label>
                 <input type="text" id="employeeName" placeholder="Entrez le nom de l'employé">
             </div>
             
             <div class="form-group">
-                <label for="weeklyRevenue">Chiffre d'affaires hebdomadaire ($)</label>
+                <label for="employeeGrade">🎯 Grade</label>
+                <select id="employeeGrade">
+                    <option value="patron">Patron - $40,000</option>
+                    <option value="copatron">Co-Patron - $35,000</option>
+                    <option value="manager">Manager - $25,000</option>
+                    <option value="employe">Employé - $20,000</option>
+                    <option value="stagiaire">Stagiaire - $15,000</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="weeklyRevenue">💵 Chiffre d'affaires hebdomadaire ($)</label>
                 <input type="number" id="weeklyRevenue" placeholder="Entrez le CA de la semaine">
             </div>
             
-            <button id="addEmployee">Ajouter Employé</button>
+            <button id="addEmployee">➕ Ajouter Employé</button>
             
             <table id="employeesTable">
                 <thead>
                     <tr>
                         <th>Nom</th>
+                        <th>Grade</th>
                         <th>CA Hebdomadaire</th>
-                        <th>Commission (15%)</th>
+                        <th>Salaire</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -291,16 +370,16 @@
         
         <!-- Onglet Calculateur de Commission -->
         <div id="commission" class="tab-content">
-            <h2>Calculateur de Commission</h2>
+            <h2>💰 Calculateur de Commission</h2>
             <div class="calculator">
                 <div>
                     <div class="form-group">
-                        <label for="propertyValue">Valeur du bien ($)</label>
+                        <label for="propertyValue">🏠 Valeur du bien ($)</label>
                         <input type="number" id="propertyValue" placeholder="Entrez la valeur du bien">
                     </div>
                     
                     <div class="form-group">
-                        <label>Sélectionnez le pourcentage de commission</label>
+                        <label>📊 Sélectionnez le pourcentage de commission</label>
                         <div class="commission-options">
                             <div class="commission-option" data-percent="8">8%</div>
                             <div class="commission-option" data-percent="15">15%</div>
@@ -312,11 +391,11 @@
                     </div>
                     
                     <div class="form-group" id="customPercentContainer" style="display: none;">
-                        <label for="customPercent">Pourcentage personnalisé</label>
+                        <label for="customPercent">🔧 Pourcentage personnalisé</label>
                         <input type="number" id="customPercent" placeholder="Entrez le pourcentage">
                     </div>
                     
-                    <button id="calculateCommission">Calculer la Commission</button>
+                    <button id="calculateCommission">🧮 Calculer la Commission</button>
                 </div>
                 
                 <div class="calculator-result" id="commissionResult">
@@ -327,99 +406,117 @@
         
         <!-- Onglet Dépenses & Impôts -->
         <div id="expenses" class="tab-content">
-            <h2>Dépenses & Impôts</h2>
+            <h2>📊 Dépenses & Impôts</h2>
             
             <div class="form-group">
-                <label for="taxRate">Taux d'imposition (%)</label>
+                <label for="taxRate">🏛️ Taux d'imposition (%)</label>
                 <input type="number" id="taxRate" value="10" placeholder="Entrez le taux d'imposition">
             </div>
             
             <div class="form-group">
-                <label for="weeklyExpenses">Dépenses hebdomadaires ($)</label>
+                <label for="weeklyExpenses">💸 Dépenses hebdomadaires ($)</label>
                 <input type="number" id="weeklyExpenses" placeholder="Entrez le montant des dépenses">
             </div>
             
             <div class="form-group">
-                <label for="agencyCosts">Coûts de l'agence ($)</label>
+                <label for="agencyCosts">🏢 Coûts de l'agence ($)</label>
                 <input type="number" id="agencyCosts" placeholder="Entrez les coûts de l'agence">
             </div>
             
-            <button id="updateExpenses">Mettre à jour</button>
+            <button id="updateExpenses">🔄 Mettre à jour</button>
             
             <div class="summary-box">
-                <h3>Résumé des Dépenses</h3>
+                <h3>📈 Résumé des Dépenses</h3>
                 <div class="summary-item">
                     <span>CA Total Brut:</span>
-                    <span id="grossRevenue">$0</span>
+                    <span id="grossRevenue" class="money">$0</span>
                 </div>
                 <div class="summary-item">
                     <span>Impôts:</span>
-                    <span id="taxAmount">$0</span>
+                    <span id="taxAmount" class="money negative">$0</span>
                 </div>
                 <div class="summary-item">
                     <span>Dépenses:</span>
-                    <span id="totalExpenses">$0</span>
+                    <span id="totalExpenses" class="money negative">$0</span>
                 </div>
                 <div class="summary-item">
                     <span>Salaires:</span>
-                    <span id="totalSalaries">$0</span>
+                    <span id="totalSalaries" class="money negative">$0</span>
                 </div>
                 <div class="summary-item total">
                     <span>Bénéfice Net:</span>
-                    <span id="netProfit">$0</span>
+                    <span id="netProfit" class="money positive">$0</span>
                 </div>
             </div>
         </div>
         
         <!-- Onglet Résumé Hebdomadaire -->
         <div id="summary" class="tab-content">
-            <h2>Résumé Hebdomadaire</h2>
+            <h2>📈 Résumé Hebdomadaire</h2>
             
             <div class="summary-box">
-                <h3>Résumé Financier</h3>
+                <h3>💰 Résumé Financier</h3>
                 <div class="summary-item">
                     <span>CA Total Brut:</span>
-                    <span id="summaryGrossRevenue">$0</span>
+                    <span id="summaryGrossRevenue" class="money">$0</span>
                 </div>
                 <div class="summary-item">
                     <span>Impôts:</span>
-                    <span id="summaryTaxAmount">$0</span>
+                    <span id="summaryTaxAmount" class="money negative">$0</span>
                 </div>
                 <div class="summary-item">
                     <span>Dépenses:</span>
-                    <span id="summaryExpenses">$0</span>
+                    <span id="summaryExpenses" class="money negative">$0</span>
                 </div>
                 <div class="summary-item">
                     <span>Salaires:</span>
-                    <span id="summarySalaries">$0</span>
+                    <span id="summarySalaries" class="money negative">$0</span>
                 </div>
                 <div class="summary-item total">
                     <span>Bénéfice Net:</span>
-                    <span id="summaryNetProfit">$0</span>
+                    <span id="summaryNetProfit" class="money positive">$0</span>
                 </div>
             </div>
             
             <div class="summary-box">
-                <h3>Réserve Dynasty</h3>
+                <h3>🏦 Réserve Dynasty</h3>
                 <div class="summary-item">
                     <span>Montant à conserver:</span>
-                    <span>$100,000</span>
+                    <span class="money">$100,000</span>
                 </div>
                 <div class="summary-item">
                     <span>Bénéfice après réserve:</span>
-                    <span id="profitAfterReserve">$0</span>
+                    <span id="profitAfterReserve" class="money">$0</span>
                 </div>
-                <div class="summary-item">
+                <div class="summary-item total">
                     <span>Montant disponible pour primes:</span>
-                    <span id="bonusAmount">$0</span>
+                    <span id="bonusAmount" class="money positive">$0</span>
                 </div>
             </div>
             
-            <button id="distributeBonuses">Distribuer les Primes</button>
+            <button id="distributeBonuses">🎁 Distribuer les Primes</button>
         </div>
     </div>
 
     <script>
+        // Salaires fixes par grade
+        const SALARIES = {
+            patron: 40000,
+            copatron: 35000,
+            manager: 25000,
+            employe: 20000,
+            stagiaire: 15000
+        };
+
+        // Noms des grades
+        const GRADE_NAMES = {
+            patron: "Patron",
+            copatron: "Co-Patron",
+            manager: "Manager",
+            employe: "Employé",
+            stagiaire: "Stagiaire"
+        };
+
         // Données de l'application
         let employees = [];
         let expenses = {
@@ -432,6 +529,7 @@
         const tabs = document.querySelectorAll('.tab');
         const tabContents = document.querySelectorAll('.tab-content');
         const employeeNameInput = document.getElementById('employeeName');
+        const employeeGradeInput = document.getElementById('employeeGrade');
         const weeklyRevenueInput = document.getElementById('weeklyRevenue');
         const addEmployeeBtn = document.getElementById('addEmployee');
         const employeesTable = document.getElementById('employeesTable').getElementsByTagName('tbody')[0];
@@ -509,18 +607,24 @@
         // Fonctions
         function addEmployee() {
             const name = employeeNameInput.value.trim();
-            const revenue = parseFloat(weeklyRevenueInput.value);
+            const grade = employeeGradeInput.value;
+            const revenue = parseFloat(weeklyRevenueInput.value) || 0;
             
-            if (!name || isNaN(revenue) || revenue <= 0) {
-                alert('Veuillez entrer un nom valide et un chiffre d\'affaires positif');
+            if (!name) {
+                alert('Veuillez entrer un nom valide');
                 return;
             }
+            
+            const salary = SALARIES[grade];
+            const gradeName = GRADE_NAMES[grade];
             
             const employee = {
                 id: Date.now(),
                 name: name,
+                grade: grade,
+                gradeName: gradeName,
                 weeklyRevenue: revenue,
-                commission: revenue * 0.15 // Commission fixe à 15%
+                salary: salary
             };
             
             employees.push(employee);
@@ -531,6 +635,7 @@
             
             // Réinitialiser les champs
             employeeNameInput.value = '';
+            employeeGradeInput.value = 'employe';
             weeklyRevenueInput.value = '';
         }
         
@@ -543,13 +648,20 @@
                 const nameCell = row.insertCell(0);
                 nameCell.textContent = employee.name;
                 
-                const revenueCell = row.insertCell(1);
+                const gradeCell = row.insertCell(1);
+                const gradeBadge = document.createElement('span');
+                gradeBadge.textContent = employee.gradeName;
+                gradeBadge.classList.add('grade-badge', `grade-${employee.grade}`);
+                gradeCell.appendChild(gradeBadge);
+                
+                const revenueCell = row.insertCell(2);
                 revenueCell.textContent = `$${employee.weeklyRevenue.toLocaleString()}`;
                 
-                const commissionCell = row.insertCell(2);
-                commissionCell.textContent = `$${employee.commission.toLocaleString()}`;
+                const salaryCell = row.insertCell(3);
+                salaryCell.textContent = `$${employee.salary.toLocaleString()}`;
+                salaryCell.classList.add('money');
                 
-                const actionsCell = row.insertCell(3);
+                const actionsCell = row.insertCell(4);
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Supprimer';
                 deleteBtn.classList.add('btn-danger');
@@ -600,7 +712,7 @@
         
         function updateExpensesSummary() {
             const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
-            const totalSalaries = employees.reduce((sum, employee) => sum + employee.commission, 0);
+            const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
             const totalExpenses = expenses.weeklyExpenses + expenses.agencyCosts;
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
@@ -614,7 +726,7 @@
         
         function updateWeeklySummary() {
             const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
-            const totalSalaries = employees.reduce((sum, employee) => sum + employee.commission, 0);
+            const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
             const totalExpenses = expenses.weeklyExpenses + expenses.agencyCosts;
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
@@ -632,7 +744,7 @@
         
         function distributeBonuses() {
             const totalRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
-            const totalSalaries = employees.reduce((sum, employee) => sum + employee.commission, 0);
+            const totalSalaries = employees.reduce((sum, employee) => sum + employee.salary, 0);
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
             const totalExpenses = expenses.weeklyExpenses + expenses.agencyCosts;
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
@@ -648,12 +760,16 @@
             // Distribuer les primes proportionnellement au CA de chaque employé
             const totalEmployeeRevenue = employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
             
+            let bonusMessage = "🎁 DISTRIBUTION DES PRIMES 🎁\n\n";
+            
             employees.forEach(employee => {
-                const bonus = (employee.weeklyRevenue / totalEmployeeRevenue) * bonusAmount;
-                alert(`Prime pour ${employee.name}: $${bonus.toLocaleString()}`);
+                const bonus = totalEmployeeRevenue > 0 ? (employee.weeklyRevenue / totalEmployeeRevenue) * bonusAmount : 0;
+                bonusMessage += `${employee.name} (${employee.gradeName}): $${bonus.toLocaleString()}\n`;
             });
             
-            alert(`Total des primes distribuées: $${bonusAmount.toLocaleString()}`);
+            bonusMessage += `\n💰 TOTAL DES PRIMES: $${bonusAmount.toLocaleString()}`;
+            
+            alert(bonusMessage);
         }
         
         function saveData() {
