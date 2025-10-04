@@ -341,6 +341,14 @@
             margin-bottom: 15px;
         }
         
+        .expense-form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 15px;
+        }
+        
         @media (max-width: 768px) {
             .calculator {
                 grid-template-columns: 1fr;
@@ -359,6 +367,10 @@
             }
             
             .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .expense-form-row {
                 grid-template-columns: 1fr;
             }
             
@@ -488,10 +500,36 @@
                 <input type="number" id="taxRate" value="10" placeholder="Entrez le taux d'imposition">
             </div>
             
-            <div class="form-group">
-                <label for="agencyCosts">Coûts de l'agence ($)</label>
-                <input type="number" id="agencyCosts" placeholder="Entrez les coûts de l'agence">
+            <h3>Gestion des Dépenses de l'Agence</h3>
+            <div class="expense-form-row">
+                <div class="form-group">
+                    <label for="expenseDescription">Description de la dépense</label>
+                    <input type="text" id="expenseDescription" placeholder="Ex: Weezel News - Publicité">
+                </div>
+                
+                <div class="form-group">
+                    <label for="expenseAmount">Montant ($)</label>
+                    <input type="number" id="expenseAmount" placeholder="Montant">
+                </div>
+                
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button id="addExpense">Ajouter</button>
+                </div>
             </div>
+            
+            <table id="expensesTable">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Montant ($)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Les lignes seront ajoutées dynamiquement -->
+                </tbody>
+            </table>
             
             <button id="updateExpenses">Mettre à jour</button>
             
@@ -650,7 +688,8 @@
         let weeklyData = []; // Stocke toutes les données par semaine
         let expenses = {
             taxRate: 10,
-            agencyCosts: 0
+            agencyCosts: 0,
+            detailedExpenses: [] // Nouveau tableau pour les dépenses détaillées
         };
         
         // Éléments DOM
@@ -678,6 +717,12 @@
         const historyTable = document.getElementById('historyTable').getElementsByTagName('tbody')[0];
         const currentWeekInfo = document.getElementById('currentWeekInfo');
         const summaryWeekTitle = document.getElementById('summaryWeekTitle');
+        
+        // Nouveaux éléments pour la gestion des dépenses détaillées
+        const expenseDescriptionInput = document.getElementById('expenseDescription');
+        const expenseAmountInput = document.getElementById('expenseAmount');
+        const addExpenseBtn = document.getElementById('addExpense');
+        const expensesTable = document.getElementById('expensesTable').getElementsByTagName('tbody')[0];
         
         // Variables pour le calcul de commission
         let selectedCommissionPercent = 15;
@@ -765,6 +810,9 @@
             
             // Ajouter un employé
             addEmployeeBtn.addEventListener('click', addEmployee);
+            
+            // Ajouter une dépense
+            addExpenseBtn.addEventListener('click', addExpense);
             
             // Mettre à jour les dépenses
             updateExpensesBtn.addEventListener('click', updateExpenses);
@@ -856,6 +904,69 @@
             weeklyRevenueInput.value = '';
         }
         
+        function addExpense() {
+            const description = expenseDescriptionInput.value.trim();
+            const amount = parseFloat(expenseAmountInput.value) || 0;
+            
+            if (!description) {
+                alert('Veuillez entrer une description valide');
+                return;
+            }
+            
+            if (amount <= 0) {
+                alert('Veuillez entrer un montant valide');
+                return;
+            }
+            
+            const expense = {
+                id: Date.now(),
+                description: description,
+                amount: amount
+            };
+            
+            // Ajouter la dépense au tableau
+            expenses.detailedExpenses.push(expense);
+            
+            // Mettre à jour l'affichage
+            updateExpensesTable();
+            updateExpensesSummary();
+            saveData();
+            
+            // Réinitialiser les champs
+            expenseDescriptionInput.value = '';
+            expenseAmountInput.value = '';
+        }
+        
+        function updateExpensesTable() {
+            expensesTable.innerHTML = '';
+            
+            // Afficher toutes les dépenses
+            expenses.detailedExpenses.forEach(expense => {
+                const row = expensesTable.insertRow();
+                
+                const descriptionCell = row.insertCell(0);
+                descriptionCell.textContent = expense.description;
+                
+                const amountCell = row.insertCell(1);
+                amountCell.textContent = `$${expense.amount.toLocaleString()}`;
+                amountCell.classList.add('money');
+                
+                const actionsCell = row.insertCell(2);
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Supprimer';
+                deleteBtn.classList.add('btn-danger');
+                deleteBtn.addEventListener('click', () => deleteExpense(expense.id));
+                actionsCell.appendChild(deleteBtn);
+            });
+        }
+        
+        function deleteExpense(expenseId) {
+            expenses.detailedExpenses = expenses.detailedExpenses.filter(exp => exp.id !== expenseId);
+            updateExpensesTable();
+            updateExpensesSummary();
+            saveData();
+        }
+        
         function updateWeekTotals(weekData) {
             weekData.totalRevenue = weekData.employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
             weekData.totalSalaries = weekData.employees.reduce((sum, employee) => sum + employee.salary, 0);
@@ -942,7 +1053,6 @@
         
         function updateExpenses() {
             expenses.taxRate = parseFloat(taxRateInput.value) || 0;
-            expenses.agencyCosts = parseFloat(agencyCostsInput.value) || 0;
             
             updateExpensesSummary();
             updateWeeklySummary();
@@ -957,7 +1067,7 @@
             const totalRevenue = currentWeekData ? currentWeekData.totalRevenue : 0;
             const totalSalaries = currentWeekData ? currentWeekData.totalSalaries : 0;
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.agencyCosts;
+            const totalExpenses = expenses.detailedExpenses.reduce((sum, expense) => sum + expense.amount, 0);
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
             
             document.getElementById('grossRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
@@ -983,7 +1093,7 @@
             const totalRevenue = weekData ? weekData.totalRevenue : 0;
             const totalSalaries = weekData ? weekData.totalSalaries : 0;
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.agencyCosts;
+            const totalExpenses = expenses.detailedExpenses.reduce((sum, expense) => sum + expense.amount, 0);
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
             const profitAfterReserve = Math.max(0, netProfit - 100000);
             const bonusAmount = profitAfterReserve;
@@ -1016,7 +1126,7 @@
             const totalRevenue = weekData.totalRevenue;
             const totalSalaries = weekData.totalSalaries;
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.agencyCosts;
+            const totalExpenses = expenses.detailedExpenses.reduce((sum, expense) => sum + expense.amount, 0);
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
             
             if (netProfit < 100000) {
@@ -1077,7 +1187,8 @@
                 
                 const netProfitCell = row.insertCell(3);
                 const taxAmount = weekData.totalRevenue * (expenses.taxRate / 100);
-                const netProfit = weekData.totalRevenue - taxAmount - expenses.agencyCosts - weekData.totalSalaries;
+                const totalExpenses = expenses.detailedExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+                const netProfit = weekData.totalRevenue - taxAmount - totalExpenses - weekData.totalSalaries;
                 netProfitCell.textContent = `$${netProfit.toLocaleString()}`;
                 netProfitCell.classList.add('money', netProfit >= 0 ? 'positive' : 'negative');
                 
@@ -1227,14 +1338,16 @@
                 weeklyData = data.weeklyData || [];
                 expenses = data.expenses || {
                     taxRate: 10,
-                    agencyCosts: 0
+                    agencyCosts: 0,
+                    detailedExpenses: []
                 };
                 
                 // Mettre à jour les champs d'entrée
                 taxRateInput.value = expenses.taxRate;
-                agencyCostsInput.value = expenses.agencyCosts;
                 
+                // Mettre à jour les tableaux
                 updateEmployeesTable();
+                updateExpensesTable();
             }
         }
     </script>
