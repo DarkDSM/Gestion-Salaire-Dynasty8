@@ -394,11 +394,11 @@
         </div>
         
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('employees')">Employés</div>
-            <div class="tab" onclick="switchTab('commission')">Commissions</div>
-            <div class="tab" onclick="switchTab('expenses')">Dépenses & Impôts</div>
-            <div class="tab" onclick="switchTab('summary')">Résumé Hebdo</div>
-            <div class="tab" onclick="switchTab('history')">Historique & Graphiques</div>
+            <div class="tab active" onclick="switchTab('employees', this)">Employés</div>
+            <div class="tab" onclick="switchTab('commission', this)">Commissions</div>
+            <div class="tab" onclick="switchTab('expenses', this)">Dépenses & Impôts</div>
+            <div class="tab" onclick="switchTab('summary', this)">Résumé Hebdo</div>
+            <div class="tab" onclick="switchTab('history', this)">Historique & Graphiques</div>
         </div>
         
         <!-- Onglet Gestion Employés -->
@@ -434,7 +434,7 @@
                 
                 <div class="form-group">
                     <label>&nbsp;</label>
-                    <button id="addEmployee">Ajouter</button>
+                    <button onclick="addEmployee()">Ajouter</button>
                 </div>
             </div>
             
@@ -468,12 +468,12 @@
                     <div class="form-group">
                         <label>Sélectionnez le pourcentage de commission</label>
                         <div class="commission-options">
-                            <div class="commission-option" onclick="selectCommission(8)">8%</div>
-                            <div class="commission-option" onclick="selectCommission(15)">15%</div>
-                            <div class="commission-option" onclick="selectCommission(18)">18%</div>
-                            <div class="commission-option" onclick="selectCommission(20)">20%</div>
-                            <div class="commission-option" onclick="selectCommission(25)">25%</div>
-                            <div class="commission-option" onclick="showCustomCommission()">Personnalisé</div>
+                            <div class="commission-option" onclick="selectCommission(8, this)">8%</div>
+                            <div class="commission-option" onclick="selectCommission(15, this)">15%</div>
+                            <div class="commission-option" onclick="selectCommission(18, this)">18%</div>
+                            <div class="commission-option" onclick="selectCommission(20, this)">20%</div>
+                            <div class="commission-option" onclick="selectCommission(25, this)">25%</div>
+                            <div class="commission-option" onclick="showCustomCommission(this)">Personnalisé</div>
                         </div>
                     </div>
                     
@@ -698,8 +698,10 @@
         let employeeChart = null;
         let totalChart = null;
 
-        // Gestion simple des onglets
-        function switchTab(tabName) {
+        // FONCTION POUR CHANGER LES ONGLETS - CORRIGÉE
+        function switchTab(tabName, element) {
+            console.log('Changement vers onglet:', tabName);
+            
             // Masquer tous les contenus d'onglets
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -712,56 +714,73 @@
             
             // Activer l'onglet sélectionné
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            element.classList.add('active');
             
             // Mettre à jour les graphiques si onglet historique
             if (tabName === 'history') {
-                updateCharts();
+                setTimeout(updateCharts, 100);
             }
         }
 
         // Fonction pour sélectionner une commission
-        function selectCommission(percent) {
+        function selectCommission(percent, element) {
             selectedCommissionPercent = percent;
             document.querySelectorAll('.commission-option').forEach(option => {
                 option.classList.remove('selected');
             });
-            event.target.classList.add('selected');
+            element.classList.add('selected');
             document.getElementById('customPercentContainer').style.display = 'none';
         }
 
-        function showCustomCommission() {
+        function showCustomCommission(element) {
             document.querySelectorAll('.commission-option').forEach(option => {
                 option.classList.remove('selected');
             });
-            event.target.classList.add('selected');
+            element.classList.add('selected');
             document.getElementById('customPercentContainer').style.display = 'block';
             selectedCommissionPercent = 0;
         }
 
-        // Le reste du code JavaScript reste identique...
-        // [Tout le reste du code JavaScript du fichier original]
-        
+        function calculateCommission() {
+            const propertyValue = parseFloat(document.getElementById('propertyValue').value);
+            
+            if (isNaN(propertyValue) || propertyValue <= 0) {
+                alert('Veuillez entrer une valeur de bien valide');
+                return;
+            }
+            
+            let percent = selectedCommissionPercent;
+            
+            if (document.getElementById('customPercentContainer').style.display === 'block') {
+                percent = parseFloat(document.getElementById('customPercent').value);
+                if (isNaN(percent) || percent <= 0) {
+                    alert('Veuillez entrer un pourcentage valide');
+                    return;
+                }
+            }
+            
+            const commission = propertyValue * (percent / 100);
+            document.getElementById('commissionResult').textContent = `Commission: $${commission.toLocaleString()}`;
+        }
+
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
             const today = new Date();
             document.getElementById('weekDate').value = today.toISOString().split('T')[0];
             updateCurrentWeekInfo();
             
-            loadData();
-            updateExpensesSummary();
-            updateWeeklySummary();
-            updateHistoryDisplay();
-            
             // Sélectionner 15% par défaut
-            document.querySelector('.commission-option:nth-child(2)').click();
+            document.querySelectorAll('.commission-option')[1].classList.add('selected');
+            
+            console.log('Application initialisée');
         });
 
-        // [Toutes les autres fonctions restent identiques...]
         function updateCurrentWeekInfo() {
             const weekDate = document.getElementById('weekDate').value;
-            const weekRange = formatWeekRange(new Date(weekDate));
-            document.getElementById('currentWeekInfo').textContent = weekRange;
+            if (weekDate) {
+                const weekRange = formatWeekRange(new Date(weekDate));
+                document.getElementById('currentWeekInfo').textContent = weekRange;
+            }
         }
 
         function getMonday(date) {
@@ -838,7 +857,148 @@
             document.getElementById('weeklyRevenue').value = '';
         }
 
-        // [Continuer avec toutes les autres fonctions...]
+        // Ajouter les autres fonctions manquantes...
+        function addExpense() {
+            const description = document.getElementById('expenseDescription').value.trim();
+            const amount = parseFloat(document.getElementById('expenseAmount').value) || 0;
+            
+            if (!description) {
+                alert('Veuillez entrer une description valide');
+                return;
+            }
+            
+            if (amount <= 0) {
+                alert('Veuillez entrer un montant valide');
+                return;
+            }
+            
+            const expense = {
+                id: Date.now(),
+                description: description,
+                amount: amount
+            };
+            
+            expenses.detailedExpenses.push(expense);
+            updateExpensesTable();
+            updateExpensesSummary();
+            saveData();
+            
+            document.getElementById('expenseDescription').value = '';
+            document.getElementById('expenseAmount').value = '';
+        }
+
+        function updateExpensesTable() {
+            const expensesTable = document.getElementById('expensesTable').getElementsByTagName('tbody')[0];
+            expensesTable.innerHTML = '';
+            
+            expenses.detailedExpenses.forEach(expense => {
+                const row = expensesTable.insertRow();
+                
+                const descriptionCell = row.insertCell(0);
+                descriptionCell.textContent = expense.description;
+                
+                const amountCell = row.insertCell(1);
+                amountCell.textContent = `$${expense.amount.toLocaleString()}`;
+                amountCell.classList.add('money');
+                
+                const actionsCell = row.insertCell(2);
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Supprimer';
+                deleteBtn.classList.add('btn-danger');
+                deleteBtn.onclick = () => deleteExpense(expense.id);
+                actionsCell.appendChild(deleteBtn);
+            });
+        }
+
+        function deleteExpense(expenseId) {
+            expenses.detailedExpenses = expenses.detailedExpenses.filter(exp => exp.id !== expenseId);
+            updateExpensesTable();
+            updateExpensesSummary();
+            saveData();
+        }
+
+        function updateWeekTotals(weekData) {
+            weekData.totalRevenue = weekData.employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
+            weekData.totalSalaries = weekData.employees.reduce((sum, employee) => sum + employee.salary, 0);
+        }
+
+        function updateEmployeesTable() {
+            const employeesTable = document.getElementById('employeesTable').getElementsByTagName('tbody')[0];
+            employeesTable.innerHTML = '';
+            
+            weeklyData.forEach(weekData => {
+                weekData.employees.forEach(employee => {
+                    const row = employeesTable.insertRow();
+                    
+                    const weekCell = row.insertCell(0);
+                    weekCell.textContent = weekData.weekRange;
+                    
+                    const nameCell = row.insertCell(1);
+                    nameCell.textContent = employee.name;
+                    
+                    const gradeCell = row.insertCell(2);
+                    const gradeBadge = document.createElement('span');
+                    gradeBadge.textContent = employee.gradeName;
+                    gradeBadge.classList.add('grade-badge', `grade-${employee.grade}`);
+                    gradeCell.appendChild(gradeBadge);
+                    
+                    const revenueCell = row.insertCell(3);
+                    revenueCell.textContent = `$${employee.weeklyRevenue.toLocaleString()}`;
+                    revenueCell.classList.add('money');
+                    
+                    const salaryCell = row.insertCell(4);
+                    salaryCell.textContent = `$${employee.salary.toLocaleString()}`;
+                    salaryCell.classList.add('money');
+                    
+                    const actionsCell = row.insertCell(5);
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = 'Supprimer';
+                    deleteBtn.classList.add('btn-danger');
+                    deleteBtn.onclick = () => deleteEmployee(weekData.weekKey, employee.id);
+                    actionsCell.appendChild(deleteBtn);
+                });
+            });
+        }
+
+        // Les autres fonctions à implémenter...
+        function updateExpenses() {
+            expenses.taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            updateExpensesSummary();
+            updateWeeklySummary();
+            saveData();
+        }
+
+        function updateExpensesSummary() {
+            // À implémenter
+        }
+
+        function updateWeeklySummary() {
+            // À implémenter
+        }
+
+        function updateHistoryDisplay() {
+            // À implémenter
+        }
+
+        function distributeBonuses() {
+            // À implémenter
+        }
+
+        function updateCharts() {
+            // À implémenter
+        }
+
+        function saveData() {
+            // À implémenter
+        }
+
+        function loadData() {
+            // À implémenter
+        }
+
+        function deleteEmployee(weekKey, employeeId) {
+            // À implémenter
+        }
 
     </script>
 </body>
