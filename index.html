@@ -341,6 +341,14 @@
             margin-bottom: 15px;
         }
         
+        .expense-form-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 15px;
+        }
+        
         .partnership-form-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 2fr 1fr 1fr auto;
@@ -391,6 +399,10 @@
             }
             
             .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .expense-form-row {
                 grid-template-columns: 1fr;
             }
             
@@ -529,10 +541,43 @@
                 <input type="number" id="taxRate" value="10" placeholder="Entrez le taux d'imposition">
             </div>
             
-            <div class="form-group">
-                <label for="agencyCosts">Coûts de l'agence ($)</label>
-                <input type="number" id="agencyCosts" placeholder="Entrez les coûts de l'agence">
+            <h3>Ajouter une Dépense d'Agence</h3>
+            
+            <div class="expense-form-row">
+                <div class="form-group">
+                    <label for="expenseDate">Date</label>
+                    <input type="date" id="expenseDate">
+                </div>
+                
+                <div class="form-group">
+                    <label for="expenseCompany">Nom de l'entreprise / Sujet</label>
+                    <input type="text" id="expenseCompany" placeholder="Nom de l'entreprise ou sujet">
+                </div>
+                
+                <div class="form-group">
+                    <label for="expenseCost">Coût ($)</label>
+                    <input type="number" id="expenseCost" placeholder="Coût de la dépense">
+                </div>
+                
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button id="addExpense">Ajouter</button>
+                </div>
             </div>
+            
+            <table id="expensesTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Entreprise / Sujet</th>
+                        <th>Coût</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Les lignes seront ajoutées dynamiquement -->
+                </tbody>
+            </table>
             
             <button id="updateExpenses">Mettre à jour</button>
             
@@ -772,6 +817,7 @@
         // Données de l'application
         let weeklyData = []; // Stocke toutes les données par semaine
         let partnershipsData = []; // Stocke les données des partenariats
+        let expensesData = []; // Stocke les données des dépenses
         let expenses = {
             taxRate: 10,
             agencyCosts: 0
@@ -779,6 +825,7 @@
         
         // Variables pour l'édition
         let editingPartnershipId = null;
+        let editingExpenseId = null;
         
         // Éléments DOM
         const tabs = document.querySelectorAll('.tab');
@@ -796,7 +843,6 @@
         const calculateCommissionBtn = document.getElementById('calculateCommission');
         const commissionResult = document.getElementById('commissionResult');
         const taxRateInput = document.getElementById('taxRate');
-        const agencyCostsInput = document.getElementById('agencyCosts');
         const updateExpensesBtn = document.getElementById('updateExpenses');
         const distributeBonusesBtn = document.getElementById('distributeBonuses');
         const weekSelector = document.getElementById('weekSelector');
@@ -816,6 +862,13 @@
         const contractStatusInput = document.getElementById('contractStatus');
         const addPartnershipBtn = document.getElementById('addPartnership');
         const partnershipsTable = document.getElementById('partnershipsTable').getElementsByTagName('tbody')[0];
+        
+        // Éléments pour les dépenses
+        const expenseDateInput = document.getElementById('expenseDate');
+        const expenseCompanyInput = document.getElementById('expenseCompany');
+        const expenseCostInput = document.getElementById('expenseCost');
+        const addExpenseBtn = document.getElementById('addExpense');
+        const expensesTable = document.getElementById('expensesTable').getElementsByTagName('tbody')[0];
         
         // Variables pour le calcul de commission
         let selectedCommissionPercent = 15;
@@ -853,6 +906,7 @@
             const today = new Date();
             weekDateInput.value = today.toISOString().split('T')[0];
             signatureDateInput.value = today.toISOString().split('T')[0];
+            expenseDateInput.value = today.toISOString().split('T')[0];
             updateCurrentWeekInfo();
             
             // Charger les données sauvegardées si disponibles
@@ -863,6 +917,7 @@
             updateWeeklySummary();
             updateHistoryDisplay();
             updatePartnershipsTable();
+            updateExpensesTable();
             
             // Configuration des onglets
             tabs.forEach(tab => {
@@ -908,6 +963,9 @@
             
             // Ajouter ou modifier un partenariat
             addPartnershipBtn.addEventListener('click', addOrUpdatePartnership);
+            
+            // Ajouter ou modifier une dépense
+            addExpenseBtn.addEventListener('click', addOrUpdateExpense);
             
             // Mettre à jour les dépenses
             updateExpensesBtn.addEventListener('click', updateExpenses);
@@ -1073,6 +1131,75 @@
             }
         }
         
+        function addOrUpdateExpense() {
+            const date = expenseDateInput.value;
+            const company = expenseCompanyInput.value.trim();
+            const cost = parseFloat(expenseCostInput.value) || 0;
+            
+            if (!date) {
+                alert('Veuillez sélectionner une date');
+                return;
+            }
+            
+            if (!company) {
+                alert('Veuillez entrer un nom d\'entreprise ou un sujet valide');
+                return;
+            }
+            
+            if (cost <= 0) {
+                alert('Veuillez entrer un coût valide');
+                return;
+            }
+            
+            if (editingExpenseId) {
+                // Mettre à jour une dépense existante
+                const expenseIndex = expensesData.findIndex(e => e.id === editingExpenseId);
+                if (expenseIndex !== -1) {
+                    expensesData[expenseIndex] = {
+                        id: editingExpenseId,
+                        date: date,
+                        company: company,
+                        cost: cost
+                    };
+                    
+                    // Réinitialiser le mode édition
+                    editingExpenseId = null;
+                    addExpenseBtn.textContent = 'Ajouter';
+                    
+                    // Mettre à jour l'affichage
+                    updateExpensesTable();
+                    updateExpensesSummary();
+                    saveData();
+                    
+                    // Réinitialiser les champs
+                    resetExpenseForm();
+                    
+                    alert('Dépense mise à jour avec succès!');
+                }
+            } else {
+                // Ajouter une nouvelle dépense
+                const expense = {
+                    id: Date.now(),
+                    date: date,
+                    company: company,
+                    cost: cost
+                };
+                
+                // Ajouter la dépense
+                expensesData.push(expense);
+                
+                // Mettre à jour l'affichage
+                updateExpensesTable();
+                updateExpensesSummary();
+                saveData();
+                
+                // Réinitialiser les champs
+                resetExpenseForm();
+                
+                alert('Dépense ajoutée avec succès!');
+            }
+        }
+        
         function resetPartnershipForm() {
             partnerNameInput.value = '';
             contractTypeInput.value = 'partenariat';
@@ -1081,6 +1208,12 @@
             discountPercentageInput.value = 0;
             contactPersonInput.value = '';
             contractStatusInput.value = 'actif';
+        }
+        
+        function resetExpenseForm() {
+            expenseDateInput.value = new Date().toISOString().split('T')[0];
+            expenseCompanyInput.value = '';
+            expenseCostInput.value = '';
         }
         
         function editPartnership(partnershipId) {
@@ -1101,6 +1234,23 @@
                 
                 // Faire défiler vers le formulaire
                 document.getElementById('partnerships').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        function editExpense(expenseId) {
+            const expense = expensesData.find(e => e.id === expenseId);
+            if (expense) {
+                // Remplir le formulaire avec les données de la dépense
+                expenseDateInput.value = expense.date;
+                expenseCompanyInput.value = expense.company;
+                expenseCostInput.value = expense.cost;
+                
+                // Passer en mode édition
+                editingExpenseId = expenseId;
+                addExpenseBtn.textContent = 'Mettre à jour';
+                
+                // Faire défiler vers le formulaire
+                document.getElementById('expenses').scrollIntoView({ behavior: 'smooth' });
             }
         }
         
@@ -1198,6 +1348,43 @@
             });
         }
         
+        function updateExpensesTable() {
+            expensesTable.innerHTML = '';
+            
+            // Afficher toutes les dépenses
+            expensesData.forEach(expense => {
+                const row = expensesTable.insertRow();
+                
+                const dateCell = row.insertCell(0);
+                dateCell.textContent = new Date(expense.date).toLocaleDateString('fr-FR');
+                
+                const companyCell = row.insertCell(1);
+                companyCell.textContent = expense.company;
+                
+                const costCell = row.insertCell(2);
+                costCell.textContent = `$${expense.cost.toLocaleString()}`;
+                costCell.classList.add('money', 'negative');
+                
+                const actionsCell = row.insertCell(3);
+                const actionButtons = document.createElement('div');
+                actionButtons.classList.add('action-buttons');
+                
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Modifier';
+                editBtn.classList.add('btn-warning');
+                editBtn.addEventListener('click', () => editExpense(expense.id));
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Supprimer';
+                deleteBtn.classList.add('btn-danger');
+                deleteBtn.addEventListener('click', () => deleteExpense(expense.id));
+                
+                actionButtons.appendChild(editBtn);
+                actionButtons.appendChild(deleteBtn);
+                actionsCell.appendChild(actionButtons);
+            });
+        }
+        
         function deleteEmployee(weekKey, employeeId) {
             const weekData = weeklyData.find(w => w.weekKey === weekKey);
             if (weekData) {
@@ -1233,6 +1420,23 @@
             }
         }
         
+        function deleteExpense(expenseId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette dépense ?')) {
+                expensesData = expensesData.filter(e => e.id !== expenseId);
+                
+                // Si on supprime une dépense en cours d'édition, réinitialiser le formulaire
+                if (editingExpenseId === expenseId) {
+                    editingExpenseId = null;
+                    addExpenseBtn.textContent = 'Ajouter';
+                    resetExpenseForm();
+                }
+                
+                updateExpensesTable();
+                updateExpensesSummary();
+                saveData();
+            }
+        }
+        
         function calculateCommission() {
             const propertyValue = parseFloat(propertyValueInput.value);
             
@@ -1257,7 +1461,6 @@
         
         function updateExpenses() {
             expenses.taxRate = parseFloat(taxRateInput.value) || 0;
-            expenses.agencyCosts = parseFloat(agencyCostsInput.value) || 0;
             
             updateExpensesSummary();
             updateWeeklySummary();
@@ -1272,7 +1475,14 @@
             const totalRevenue = currentWeekData ? currentWeekData.totalRevenue : 0;
             const totalSalaries = currentWeekData ? currentWeekData.totalSalaries : 0;
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.agencyCosts;
+            
+            // Calculer les dépenses de la semaine en cours
+            const currentWeekExpenses = expensesData.filter(expense => {
+                const expenseWeekKey = getWeekKey(new Date(expense.date));
+                return expenseWeekKey === currentWeekKey;
+            });
+            
+            const totalExpenses = currentWeekExpenses.reduce((sum, expense) => sum + expense.cost, 0);
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
             
             document.getElementById('grossRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
@@ -1298,7 +1508,17 @@
             const totalRevenue = weekData ? weekData.totalRevenue : 0;
             const totalSalaries = weekData ? weekData.totalSalaries : 0;
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.agencyCosts;
+            
+            // Calculer les dépenses de la semaine sélectionnée
+            let totalExpenses = 0;
+            if (weekData) {
+                const weekExpenses = expensesData.filter(expense => {
+                    const expenseWeekKey = getWeekKey(new Date(expense.date));
+                    return expenseWeekKey === weekData.weekKey;
+                });
+                totalExpenses = weekExpenses.reduce((sum, expense) => sum + expense.cost, 0);
+            }
+            
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
             const profitAfterReserve = Math.max(0, netProfit - 100000);
             const bonusAmount = profitAfterReserve;
@@ -1331,7 +1551,14 @@
             const totalRevenue = weekData.totalRevenue;
             const totalSalaries = weekData.totalSalaries;
             const taxAmount = totalRevenue * (expenses.taxRate / 100);
-            const totalExpenses = expenses.agencyCosts;
+            
+            // Calculer les dépenses de la semaine sélectionnée
+            const weekExpenses = expensesData.filter(expense => {
+                const expenseWeekKey = getWeekKey(new Date(expense.date));
+                return expenseWeekKey === weekData.weekKey;
+            });
+            const totalExpenses = weekExpenses.reduce((sum, expense) => sum + expense.cost, 0);
+            
             const netProfit = totalRevenue - taxAmount - totalExpenses - totalSalaries;
             
             if (netProfit < 100000) {
@@ -1392,7 +1619,15 @@
                 
                 const netProfitCell = row.insertCell(3);
                 const taxAmount = weekData.totalRevenue * (expenses.taxRate / 100);
-                const netProfit = weekData.totalRevenue - taxAmount - expenses.agencyCosts - weekData.totalSalaries;
+                
+                // Calculer les dépenses de la semaine
+                const weekExpenses = expensesData.filter(expense => {
+                    const expenseWeekKey = getWeekKey(new Date(expense.date));
+                    return expenseWeekKey === weekData.weekKey;
+                });
+                const totalExpenses = weekExpenses.reduce((sum, expense) => sum + expense.cost, 0);
+                
+                const netProfit = weekData.totalRevenue - taxAmount - totalExpenses - weekData.totalSalaries;
                 netProfitCell.textContent = `$${netProfit.toLocaleString()}`;
                 netProfitCell.classList.add('money', netProfit >= 0 ? 'positive' : 'negative');
                 
@@ -1531,6 +1766,7 @@
             const data = {
                 weeklyData: weeklyData,
                 partnershipsData: partnershipsData,
+                expensesData: expensesData,
                 expenses: expenses
             };
             localStorage.setItem('agencyData', JSON.stringify(data));
@@ -1542,6 +1778,7 @@
                 const data = JSON.parse(savedData);
                 weeklyData = data.weeklyData || [];
                 partnershipsData = data.partnershipsData || [];
+                expensesData = data.expensesData || [];
                 expenses = data.expenses || {
                     taxRate: 10,
                     agencyCosts: 0
@@ -1549,10 +1786,10 @@
                 
                 // Mettre à jour les champs d'entrée
                 taxRateInput.value = expenses.taxRate;
-                agencyCostsInput.value = expenses.agencyCosts;
                 
                 updateEmployeesTable();
                 updatePartnershipsTable();
+                updateExpensesTable();
             }
         }
     </script>
