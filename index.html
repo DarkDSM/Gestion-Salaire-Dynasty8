@@ -341,6 +341,38 @@
             margin-bottom: 15px;
         }
         
+        .partnership-form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 2fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 15px;
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .status-actif { background: linear-gradient(135deg, var(--success), #27ae60); }
+        .status-negociation { background: linear-gradient(135deg, var(--warning), #e67e22); }
+        .status-termine { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
+        .status-suspendu { background: linear-gradient(135deg, var(--danger), #c0392b); }
+        .status-revision { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-buttons button {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+        
         @media (max-width: 768px) {
             .calculator {
                 grid-template-columns: 1fr;
@@ -360,6 +392,14 @@
             
             .form-row {
                 grid-template-columns: 1fr;
+            }
+            
+            .partnership-form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
             }
             
             h1 {
@@ -386,6 +426,7 @@
             <div class="tab" data-tab="commission">Commissions</div>
             <div class="tab" data-tab="expenses">Dépenses & Impôts</div>
             <div class="tab" data-tab="summary">Résumé Hebdo</div>
+            <div class="tab" data-tab="partnerships">Partenariats</div>
             <div class="tab" data-tab="history">Historique & Graphiques</div>
         </div>
         
@@ -573,6 +614,79 @@
             
             <button id="distributeBonuses">Distribuer les Primes</button>
         </div>
+        
+        <!-- Nouvel Onglet Partenariats -->
+        <div id="partnerships" class="tab-content">
+            <h2>Gestion des Partenariats</h2>
+            
+            <div class="partnership-form-row">
+                <div class="form-group">
+                    <label for="partnerName">Nom de l'entreprise</label>
+                    <input type="text" id="partnerName" placeholder="Nom de l'entreprise">
+                </div>
+                
+                <div class="form-group">
+                    <label for="contractType">Type de contrat</label>
+                    <select id="contractType">
+                        <option value="partenariat">Partenariat</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signatureDate">Date de signature</label>
+                    <input type="date" id="signatureDate">
+                </div>
+                
+                <div class="form-group">
+                    <label for="partnerServices">Prestations de services</label>
+                    <input type="text" id="partnerServices" placeholder="Prestations fournies">
+                </div>
+                
+                <div class="form-group">
+                    <label for="discountPercentage">Pourcentage de réduction</label>
+                    <input type="number" id="discountPercentage" value="0" min="0" max="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="contactPerson">Contact de l'entreprise</label>
+                    <input type="text" id="contactPerson" placeholder="Personne contact">
+                </div>
+                
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button id="addPartnership">Ajouter</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="contractStatus">Statut du contrat</label>
+                <select id="contractStatus">
+                    <option value="actif">Actif</option>
+                    <option value="negociation">En Négociation</option>
+                    <option value="termine">Terminé</option>
+                    <option value="suspendu">Suspendu</option>
+                    <option value="revision">En Révision</option>
+                </select>
+            </div>
+            
+            <table id="partnershipsTable">
+                <thead>
+                    <tr>
+                        <th>Nom de l'entreprise</th>
+                        <th>Type de Contrat</th>
+                        <th>Date de Signature</th>
+                        <th>Prestations de services</th>
+                        <th>Pourcentage de réduction</th>
+                        <th>Contact de l'entreprise</th>
+                        <th>Statut du Contrat</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Les lignes seront ajoutées dynamiquement -->
+                </tbody>
+            </table>
+        </div>
 
         <!-- Nouvel Onglet Historique & Graphiques -->
         <div id="history" class="tab-content">
@@ -646,12 +760,25 @@
             stagiaire: "Stagiaire"
         };
 
+        // Noms des statuts de contrat
+        const STATUS_NAMES = {
+            actif: "Actif",
+            negociation: "En Négociation",
+            termine: "Terminé",
+            suspendu: "Suspendu",
+            revision: "En Révision"
+        };
+
         // Données de l'application
         let weeklyData = []; // Stocke toutes les données par semaine
+        let partnershipsData = []; // Stocke les données des partenariats
         let expenses = {
             taxRate: 10,
             agencyCosts: 0
         };
+        
+        // Variables pour l'édition
+        let editingPartnershipId = null;
         
         // Éléments DOM
         const tabs = document.querySelectorAll('.tab');
@@ -678,6 +805,17 @@
         const historyTable = document.getElementById('historyTable').getElementsByTagName('tbody')[0];
         const currentWeekInfo = document.getElementById('currentWeekInfo');
         const summaryWeekTitle = document.getElementById('summaryWeekTitle');
+        
+        // Éléments pour les partenariats
+        const partnerNameInput = document.getElementById('partnerName');
+        const contractTypeInput = document.getElementById('contractType');
+        const signatureDateInput = document.getElementById('signatureDate');
+        const partnerServicesInput = document.getElementById('partnerServices');
+        const discountPercentageInput = document.getElementById('discountPercentage');
+        const contactPersonInput = document.getElementById('contactPerson');
+        const contractStatusInput = document.getElementById('contractStatus');
+        const addPartnershipBtn = document.getElementById('addPartnership');
+        const partnershipsTable = document.getElementById('partnershipsTable').getElementsByTagName('tbody')[0];
         
         // Variables pour le calcul de commission
         let selectedCommissionPercent = 15;
@@ -714,6 +852,7 @@
             // Définir la date par défaut sur aujourd'hui
             const today = new Date();
             weekDateInput.value = today.toISOString().split('T')[0];
+            signatureDateInput.value = today.toISOString().split('T')[0];
             updateCurrentWeekInfo();
             
             // Charger les données sauvegardées si disponibles
@@ -723,6 +862,7 @@
             updateExpensesSummary();
             updateWeeklySummary();
             updateHistoryDisplay();
+            updatePartnershipsTable();
             
             // Configuration des onglets
             tabs.forEach(tab => {
@@ -765,6 +905,9 @@
             
             // Ajouter un employé
             addEmployeeBtn.addEventListener('click', addEmployee);
+            
+            // Ajouter ou modifier un partenariat
+            addPartnershipBtn.addEventListener('click', addOrUpdatePartnership);
             
             // Mettre à jour les dépenses
             updateExpensesBtn.addEventListener('click', updateExpenses);
@@ -856,6 +999,111 @@
             weeklyRevenueInput.value = '';
         }
         
+        function addOrUpdatePartnership() {
+            const name = partnerNameInput.value.trim();
+            const contractType = contractTypeInput.value;
+            const signatureDate = signatureDateInput.value;
+            const services = partnerServicesInput.value.trim();
+            const discount = parseFloat(discountPercentageInput.value) || 0;
+            const contact = contactPersonInput.value.trim();
+            const status = contractStatusInput.value;
+            
+            if (!name) {
+                alert('Veuillez entrer un nom d\'entreprise valide');
+                return;
+            }
+            
+            if (!signatureDate) {
+                alert('Veuillez sélectionner une date de signature');
+                return;
+            }
+            
+            if (editingPartnershipId) {
+                // Mettre à jour un partenariat existant
+                const partnershipIndex = partnershipsData.findIndex(p => p.id === editingPartnershipId);
+                if (partnershipIndex !== -1) {
+                    partnershipsData[partnershipIndex] = {
+                        id: editingPartnershipId,
+                        name: name,
+                        contractType: contractType,
+                        signatureDate: signatureDate,
+                        services: services,
+                        discount: discount,
+                        contact: contact,
+                        status: status
+                    };
+                    
+                    // Réinitialiser le mode édition
+                    editingPartnershipId = null;
+                    addPartnershipBtn.textContent = 'Ajouter';
+                    
+                    // Mettre à jour l'affichage
+                    updatePartnershipsTable();
+                    saveData();
+                    
+                    // Réinitialiser les champs
+                    resetPartnershipForm();
+                    
+                    alert('Partenariat mis à jour avec succès!');
+                }
+            } else {
+                // Ajouter un nouveau partenariat
+                const partnership = {
+                    id: Date.now(),
+                    name: name,
+                    contractType: contractType,
+                    signatureDate: signatureDate,
+                    services: services,
+                    discount: discount,
+                    contact: contact,
+                    status: status
+                };
+                
+                // Ajouter le partenariat
+                partnershipsData.push(partnership);
+                
+                // Mettre à jour l'affichage
+                updatePartnershipsTable();
+                saveData();
+                
+                // Réinitialiser les champs
+                resetPartnershipForm();
+                
+                alert('Partenariat ajouté avec succès!');
+            }
+        }
+        
+        function resetPartnershipForm() {
+            partnerNameInput.value = '';
+            contractTypeInput.value = 'partenariat';
+            signatureDateInput.value = new Date().toISOString().split('T')[0];
+            partnerServicesInput.value = '';
+            discountPercentageInput.value = 0;
+            contactPersonInput.value = '';
+            contractStatusInput.value = 'actif';
+        }
+        
+        function editPartnership(partnershipId) {
+            const partnership = partnershipsData.find(p => p.id === partnershipId);
+            if (partnership) {
+                // Remplir le formulaire avec les données du partenariat
+                partnerNameInput.value = partnership.name;
+                contractTypeInput.value = partnership.contractType;
+                signatureDateInput.value = partnership.signatureDate;
+                partnerServicesInput.value = partnership.services;
+                discountPercentageInput.value = partnership.discount;
+                contactPersonInput.value = partnership.contact;
+                contractStatusInput.value = partnership.status;
+                
+                // Passer en mode édition
+                editingPartnershipId = partnershipId;
+                addPartnershipBtn.textContent = 'Mettre à jour';
+                
+                // Faire défiler vers le formulaire
+                document.getElementById('partnerships').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
         function updateWeekTotals(weekData) {
             weekData.totalRevenue = weekData.employees.reduce((sum, employee) => sum + employee.weeklyRevenue, 0);
             weekData.totalSalaries = weekData.employees.reduce((sum, employee) => sum + employee.salary, 0);
@@ -899,6 +1147,57 @@
             });
         }
         
+        function updatePartnershipsTable() {
+            partnershipsTable.innerHTML = '';
+            
+            // Afficher tous les partenariats
+            partnershipsData.forEach(partnership => {
+                const row = partnershipsTable.insertRow();
+                
+                const nameCell = row.insertCell(0);
+                nameCell.textContent = partnership.name;
+                
+                const contractTypeCell = row.insertCell(1);
+                contractTypeCell.textContent = partnership.contractType;
+                
+                const signatureDateCell = row.insertCell(2);
+                signatureDateCell.textContent = new Date(partnership.signatureDate).toLocaleDateString('fr-FR');
+                
+                const servicesCell = row.insertCell(3);
+                servicesCell.textContent = partnership.services;
+                
+                const discountCell = row.insertCell(4);
+                discountCell.textContent = `${partnership.discount}%`;
+                
+                const contactCell = row.insertCell(5);
+                contactCell.textContent = partnership.contact;
+                
+                const statusCell = row.insertCell(6);
+                const statusBadge = document.createElement('span');
+                statusBadge.textContent = STATUS_NAMES[partnership.status];
+                statusBadge.classList.add('status-badge', `status-${partnership.status}`);
+                statusCell.appendChild(statusBadge);
+                
+                const actionsCell = row.insertCell(7);
+                const actionButtons = document.createElement('div');
+                actionButtons.classList.add('action-buttons');
+                
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Modifier';
+                editBtn.classList.add('btn-warning');
+                editBtn.addEventListener('click', () => editPartnership(partnership.id));
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Supprimer';
+                deleteBtn.classList.add('btn-danger');
+                deleteBtn.addEventListener('click', () => deletePartnership(partnership.id));
+                
+                actionButtons.appendChild(editBtn);
+                actionButtons.appendChild(deleteBtn);
+                actionsCell.appendChild(actionButtons);
+            });
+        }
+        
         function deleteEmployee(weekKey, employeeId) {
             const weekData = weeklyData.find(w => w.weekKey === weekKey);
             if (weekData) {
@@ -914,6 +1213,22 @@
                 updateExpensesSummary();
                 updateWeeklySummary();
                 updateHistoryDisplay();
+                saveData();
+            }
+        }
+        
+        function deletePartnership(partnershipId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce partenariat ?')) {
+                partnershipsData = partnershipsData.filter(p => p.id !== partnershipId);
+                
+                // Si on supprime un partenariat en cours d'édition, réinitialiser le formulaire
+                if (editingPartnershipId === partnershipId) {
+                    editingPartnershipId = null;
+                    addPartnershipBtn.textContent = 'Ajouter';
+                    resetPartnershipForm();
+                }
+                
+                updatePartnershipsTable();
                 saveData();
             }
         }
@@ -1215,6 +1530,7 @@
         function saveData() {
             const data = {
                 weeklyData: weeklyData,
+                partnershipsData: partnershipsData,
                 expenses: expenses
             };
             localStorage.setItem('agencyData', JSON.stringify(data));
@@ -1225,6 +1541,7 @@
             if (savedData) {
                 const data = JSON.parse(savedData);
                 weeklyData = data.weeklyData || [];
+                partnershipsData = data.partnershipsData || [];
                 expenses = data.expenses || {
                     taxRate: 10,
                     agencyCosts: 0
@@ -1235,6 +1552,7 @@
                 agencyCostsInput.value = expenses.agencyCosts;
                 
                 updateEmployeesTable();
+                updatePartnershipsTable();
             }
         }
     </script>
